@@ -29,8 +29,27 @@ anyone   ──settle(lease) after term──▶ uptime < SLA ? bond pays holder
 anyone   ──claimProvisionTimeout(lease)──▶ no machine within 30 min ? full penalty to holder
 ```
 
-## Quick start
+## Live on Monad testnet
+
+| Contract | Address |
+|---|---|
+| Hourglass | `0xA8EA1800A9bd1EE278902E9F782BEfFbad0CF380` |
+| Collateral (mock USD, 6 dp) | `0x2B9D9040894a0f34f3E1228dE9E0bF9fE05117A5` |
+| gH100-USE (H100 · US-East) | `0x9d591abC5f477a22A13Ebc269d78126C65A56b4F` |
+| gA100-EUW (A100 · EU-West) | `0x151dF710Ada39C8e081a24c0b9e6c28693f674dA` |
+
+Report senders: CRE MockKeystoneForwarder (simulation), CRE KeystoneForwarder (production), and a dev oracle key.
+
+## Run it
 
 ```bash
-cd contracts && forge test
+pnpm install
+bash scripts/testnet-stack.sh          # gateway + oracle + web on http://localhost:3000 (Monad testnet)
+ORACLE=cre bash scripts/testnet-stack.sh   # same, but the real CRE workflows run in the CRE simulator (needs `cre login`)
+bash scripts/dev-stack.sh              # everything on a local anvil chain
 ```
+
+Secrets live in `contracts/.env` (gitignored): `PRIVATE_KEY` (deployer · demo provider · faucet), `ORACLE_PRIVATE_KEY`, `GATEWAY_TOKEN`.
+Use a browser whose passkey provider supports PRF (Chrome/Safari with iCloud Keychain, Google Password Manager, or 1Password).
+
+See [TESTING.md](TESTING.md) for the full test matrix.
