@@ -3,3 +3,6 @@ packages:
   - gateway
   - web
   - scripts
+allowBuilds:
+  unrs-resolver: true
+  sharp: true
