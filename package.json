@@ -1,0 +1,13 @@
+{
+  "name": "hourglass",
+  "private": true,
+  "scripts": {
+    "gateway": "pnpm --filter @hourglass/gateway dev",
+    "web": "pnpm --filter @hourglass/web dev",
+    "test": "pnpm -r test"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "typescript": "^7.0.2"
+  }
+}

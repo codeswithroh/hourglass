@@ -70,6 +70,8 @@ contract Hourglass is IReceiver, Ownable, ReentrancyGuard {
         uint32 probesTotal;
         uint32 probesUp;
         uint256 payout;
+        /// @dev keccak256(abi.encode(sshPublicKey, encryptionPublicKey)) — lets gateways verify the keys they are handed.
+        bytes32 accessKeysHash;
         string healthUrl;
     }
 
@@ -316,6 +318,7 @@ contract Hourglass is IReceiver, Ownable, ReentrancyGuard {
                 probesTotal: 0,
                 probesUp: 0,
                 payout: 0,
+                accessKeysHash: keccak256(abi.encode(sshPublicKey, encryptionPublicKey)),
                 healthUrl: ""
             })
         );

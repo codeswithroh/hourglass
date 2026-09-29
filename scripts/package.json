@@ -1,0 +1,3 @@
+{ "name": "@hourglass/scripts", "private": true, "type": "module",
+  "scripts": { "e2e": "node --experimental-transform-types --no-warnings e2e-local.ts" },
+  "dependencies": { "viem": "^2.30.0", "@hourglass/shared": "workspace:*" } }
