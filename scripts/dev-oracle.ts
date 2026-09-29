@@ -19,6 +19,8 @@ const abi = parseAbi([
   "event LeaseRequested(uint256 indexed leaseId, uint256 indexed seriesId, address indexed holder, address provider, uint32 hoursCount, string sshPublicKey, bytes32 encryptionPublicKey)",
   "function activeLeases() view returns (uint256[] ids, string[] healthUrls)",
   "function onReport(bytes metadata, bytes report)",
+  "function settle(uint256 leaseId)",
+  "function getLease(uint256) view returns ((uint256 seriesId,address holder,uint32 hoursCount,uint64 requestedAt,uint64 startedAt,uint16 uptimeBps,uint8 status,uint32 probesTotal,uint32 probesUp,uint256 payout,bytes32 accessKeysHash,string healthUrl))",
 ]);
 const pub = createPublicClient({ transport: http(RPC, { retryCount: 6, retryDelay: 400 }) });
 const chainId = await pub.getChainId();
@@ -77,7 +79,26 @@ pub.watchContractEvent({
 
 setInterval(async () => {
   try {
-    const [ids, urls] = await pub.readContract({ address: HG, abi, functionName: "activeLeases" });
+    const [allIds, allUrls] = await pub.readContract({ address: HG, abi, functionName: "activeLeases" });
+    if (!allIds.length) return;
+    const now = Number((await pub.getBlock()).timestamp);
+    const leases = await Promise.all(allIds.map((id) => pub.readContract({ address: HG, abi, functionName: "getLease", args: [id] })));
+    const inTerm = allIds.map((_, i) => now < Number(leases[i].startedAt) + leases[i].hoursCount * 3600);
+
+    // Keeper duty: settle leases whose term has ended (settle is permissionless; this just saves holders a click).
+    for (const [i, id] of allIds.entries()) {
+      if (inTerm[i]) continue;
+      const run = queue.then(async () => {
+        const hash = await wallet.writeContract({ address: HG, abi, functionName: "settle", args: [id] });
+        const rc = await pub.waitForTransactionReceipt({ hash });
+        console.log(`[oracle] settled lease ${id} (${leases[i].probesUp}/${leases[i].probesTotal} up) → ${rc.status} ${hash}`);
+      });
+      queue = run.catch((e) => console.log(`[oracle] settle ${id} failed: ${(e as Error).message.split("\n")[0]}`));
+    }
+
+    // Only probe leases still inside their paid term — probes after the term are ignored onchain and waste gas.
+    const ids = allIds.filter((_, i) => inTerm[i]);
+    const urls = allUrls.filter((_, i) => inTerm[i]);
     if (!ids.length) return;
     const up = await Promise.all(
       urls.map((u) => fetch(u).then((r) => r.json()).then((j: { up?: boolean }) => j.up === true).catch(() => false)),
@@ -87,7 +108,7 @@ setInterval(async () => {
       `PROBES ${ids.map((id, i) => `${id}=${up[i] ? "up" : "DOWN"}`).join(" ")}`,
     );
   } catch (e) {
-    console.log("[oracle] probe tick failed", (e as Error).message);
+    console.log("[oracle] probe tick failed", (e as Error).message.split("\n")[0]);
   }
 }, PROBE_MS);
 

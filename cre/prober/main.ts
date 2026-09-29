@@ -73,13 +73,36 @@ const onTick = (runtime: Runtime<Config>): string => {
     return "idle"
   }
 
+  // Only leases still inside their paid term: probes after the term are ignored onchain and would waste gas.
+  const nowS = Math.floor(runtime.now().getTime() / 1000)
+  const inTerm = allIds.map((id) => {
+    const res = evm
+      .callContract(runtime, {
+        call: encodeCallMsg({
+          from: zeroAddress,
+          to: cfg.hourglassAddress as `0x${string}`,
+          data: encodeFunctionData({ abi: Hourglass, functionName: "getLease", args: [id] }),
+        }),
+        blockNumber: LATEST_BLOCK_NUMBER,
+      })
+      .result()
+    const l = decodeFunctionResult({ abi: Hourglass, functionName: "getLease", data: bytesToHex(res.data) })
+    return nowS < Number(l.startedAt) + l.hoursCount * 3600
+  })
+  const liveIds = allIds.filter((_, i) => inTerm[i])
+  const liveUrls = allUrls.filter((_, i) => inTerm[i])
+  if (liveIds.length === 0) {
+    runtime.log("no leases inside their term")
+    return "idle"
+  }
+
   // Rotate through large sets so every lease gets probed over successive ticks.
-  const n = Math.min(allIds.length, cfg.maxLeasesPerTick)
+  const n = Math.min(liveIds.length, cfg.maxLeasesPerTick)
   const tick = Math.floor(runtime.now().getTime() / 60_000)
-  const offset = allIds.length > n ? (tick * n) % allIds.length : 0
-  const idx = Array.from({ length: n }, (_, i) => (offset + i) % allIds.length)
-  const ids = idx.map((i) => allIds[i])
-  const urls = idx.map((i) => allUrls[i])
+  const offset = liveIds.length > n ? (tick * n) % liveIds.length : 0
+  const idx = Array.from({ length: n }, (_, i) => (offset + i) % liveIds.length)
+  const ids = idx.map((i) => liveIds[i])
+  const urls = idx.map((i) => liveUrls[i])
 
   const bitmap = new HTTPClient()
     .sendRequest(runtime, probeAll, consensusIdenticalAggregation<string>())(urls)

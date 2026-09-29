@@ -3,6 +3,7 @@ import { parseAbi, parseAbiParameters } from "viem"
 export const Hourglass = parseAbi([
   "event LeaseRequested(uint256 indexed leaseId, uint256 indexed seriesId, address indexed holder, address provider, uint32 hoursCount, string sshPublicKey, bytes32 encryptionPublicKey)",
   "function activeLeases() view returns (uint256[] ids, string[] healthUrls)",
+  "function getLease(uint256) view returns ((uint256 seriesId,address holder,uint32 hoursCount,uint64 requestedAt,uint64 startedAt,uint16 uptimeBps,uint8 status,uint32 probesTotal,uint32 probesUp,uint256 payout,bytes32 accessKeysHash,string healthUrl))",
 ])
 
 /** report = abi.encode(uint8 kind, uint256 leaseId, bytes payload) — see Hourglass.onReport */
