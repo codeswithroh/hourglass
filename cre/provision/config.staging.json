@@ -1,0 +1,8 @@
+{
+  "chainSelectorName": "monad-testnet",
+  "hourglassAddress": "0x0000000000000000000000000000000000000000",
+  "gasLimit": "600000",
+  "gateways": {
+    "0x0000000000000000000000000000000000000000": "https://gateway.example.com"
+  }
+}

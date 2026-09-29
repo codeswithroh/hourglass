@@ -47,13 +47,20 @@ async function provision(leaseId: bigint, sshPublicKey: string, encryptionPublic
   if (accessKeysHash(sshPublicKey, encryptionPublicKey) !== lease.accessKeysHash)
     throw new HttpError(400, "access keys do not match onchain commitment");
 
-  const machine = await driver.provision({
-    leaseId: id,
-    gpuModel: bytes32ToString(series.gpuModel),
-    region: bytes32ToString(series.region),
-    hours: lease.hoursCount,
-    sshPublicKey,
-  });
+  let machine;
+  try {
+    machine = await driver.provision({
+      leaseId: id,
+      gpuModel: bytes32ToString(series.gpuModel),
+      region: bytes32ToString(series.region),
+      hours: lease.hoursCount,
+      sshPublicKey,
+    });
+  } catch (err) {
+    // Tells the DON we cannot fulfil → FAILED report → holder is compensated immediately from our bond.
+    console.error(`[provision] lease ${id} failed:`, err);
+    throw new HttpError(422, `cannot fulfil: ${(err as Error).message}`);
+  }
   const sealed = seal(hexToBytes(encryptionPublicKey), new TextEncoder().encode(JSON.stringify(machine.access)));
   const now = Math.floor(Date.now() / 1000);
   const rec: LeaseRecord = {
@@ -72,7 +79,7 @@ async function provision(leaseId: bigint, sshPublicKey: string, encryptionPublic
 
 class HttpError extends Error {
   constructor(
-    public status: 400 | 401 | 403 | 404 | 409,
+    public status: 400 | 401 | 403 | 404 | 409 | 422,
     message: string,
   ) {
     super(message);
