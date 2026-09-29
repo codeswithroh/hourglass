@@ -6,3 +6,4 @@ node_modules/
 docs-ref/
 .next/
 dist/
+gateway/data/
