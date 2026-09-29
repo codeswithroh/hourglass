@@ -48,7 +48,26 @@ function SeriesTable({
   onSelect: (id: bigint) => void;
 }) {
   return (
-    <div className="bg-panel border border-line rounded-xl overflow-x-auto">
+    <>
+      <div className="sm:hidden space-y-2">
+        {!market && <div className="bg-panel border border-line rounded-xl h-24 animate-pulse" />}
+        {market?.map((s) => (
+          <button
+            key={s.id.toString()}
+            onClick={() => onSelect(s.id)}
+            className={`w-full text-left bg-panel border rounded-xl p-4 ${selected === s.id ? "border-sand-dim" : "border-line"}`}
+          >
+            <div className="flex justify-between items-baseline">
+              <span className="font-medium">{s.gpuModel}</span>
+              <span className="num text-sand">{s.primaryPrice ? `${usd(s.primaryPrice)}/h` : "—"}</span>
+            </div>
+            <div className="text-xs text-muted mt-1">
+              {s.region} · SLA {pct(s.minUptimeBps)} · {s.primaryRemaining.toLocaleString()} h left · {fmtDate(s.deliveryStart)} → {fmtDate(s.deliveryEnd)}
+            </div>
+          </button>
+        ))}
+      </div>
+    <div className="hidden sm:block bg-panel border border-line rounded-xl overflow-x-auto">
       <table className="w-full text-sm">
         <thead className="text-muted text-xs uppercase tracking-wide">
           <tr className="border-b border-line">
@@ -96,6 +115,7 @@ function SeriesTable({
         </tbody>
       </table>
     </div>
+    </>
   );
 }
 
@@ -155,9 +175,9 @@ function BuyPanel({ s }: { s: SeriesView }) {
             min={1}
             value={hours}
             onChange={(e) => setHours(Number(e.target.value))}
-            className="num bg-transparent flex-1 px-3 py-2.5 text-lg outline-none"
+            className="num bg-transparent flex-1 min-w-0 px-3 py-2.5 text-lg outline-none"
           />
-          <span className="px-3 text-muted text-sm num">{s.symbol}</span>
+          <span className="px-3 text-muted text-sm num whitespace-nowrap">{s.symbol}</span>
         </div>
       </label>
 

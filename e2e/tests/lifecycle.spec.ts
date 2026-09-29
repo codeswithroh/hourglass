@@ -13,14 +13,14 @@ async function addressShown(page: Page) {
 test.describe.serial("Hourglass end-to-end on a live chain", () => {
   let address: string | null;
   let sshPub: string;
-  let leaseId: string;
+  let leaseId = "0"; // overwritten by the lifecycle test; lease 0 exists on the testnet deployment
 
   test("market renders live series from the chain", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: /Spot GPU-hours/ })).toBeVisible();
-    await expect(page.getByText("H100-80GB-SXM").first()).toBeVisible();
-    await expect(page.getByText("A100-80GB-PCIE").first()).toBeVisible();
-    await expect(page.getByText("$2.49").first()).toBeVisible();
+    await expect(page.getByText("H100-80GB-SXM").filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByText("A100-80GB-PCIE").filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByText("$2.49").filter({ visible: true }).first()).toBeVisible();
     await expect(page.getByRole("button", { name: "Sign in to buy" })).toBeDisabled();
   });
 
@@ -118,9 +118,14 @@ test.describe.serial("Hourglass end-to-end on a live chain", () => {
   });
 
   test("gateway refuses forged provisioning requests", async () => {
+    const token = process.env.GATEWAY_TOKEN;
+    if (token) {
+      const anon = await fetch(`${GATEWAY}/v1/leases/${leaseId}/provision`, { method: "POST", body: "{}" });
+      expect(anon.status).toBe(401); // only the DON (holding the token) may call provision
+    }
     const r = await fetch(`${GATEWAY}/v1/leases/${leaseId}/provision`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify({ sshPublicKey: "ssh-ed25519 AAAA attacker", encryptionPublicKey: `0x${"11".repeat(32)}` }),
     });
     // Keys are checked against the onchain commitment even for an already-provisioned lease.

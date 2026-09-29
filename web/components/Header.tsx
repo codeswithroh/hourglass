@@ -14,12 +14,12 @@ export function Header() {
   const path = usePathname();
   return (
     <header className="border-b border-line bg-bg/80 backdrop-blur sticky top-0 z-20">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 min-h-14 py-2 flex flex-wrap items-center gap-x-6 gap-y-2">
         <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
           <Glyph />
           Hourglass
         </Link>
-        <nav className="flex gap-1 text-sm">
+        <nav className="order-last sm:order-none w-full sm:w-auto flex gap-1 text-sm -mx-3 sm:mx-0">
           {NAV.map((n) => (
             <Link
               key={n.href}

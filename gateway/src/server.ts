@@ -101,6 +101,7 @@ app.get("/", (c) => c.json({ service: "hourglass-gateway", driver: driver.name, 
 /** Called by the CRE provision workflow on every DON node — must return identical bodies for the same lease. */
 app.post("/v1/leases/:leaseId/provision", async (c) => {
   if (GATEWAY_TOKEN && c.req.header("authorization") !== `Bearer ${GATEWAY_TOKEN}`) throw new HttpError(401, "unauthorized");
+  if (!/^\d{1,78}$/.test(c.req.param("leaseId"))) throw new HttpError(400, "invalid lease id");
   const leaseId = BigInt(c.req.param("leaseId"));
   const body = await c.req.json<{ sshPublicKey: string; encryptionPublicKey: `0x${string}` }>();
   if (paused) return c.json({ error: "provider unavailable" }, 503);
