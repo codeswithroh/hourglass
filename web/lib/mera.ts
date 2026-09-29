@@ -11,6 +11,7 @@ import {
   createPasskeyWithPrfOutput,
   getPasskeyPrfOutput,
   createSecp256k1SigningSession,
+  isMeraError,
   type Secp256k1SigningSession,
 } from "@category-labs/mera";
 import { toViemAccount } from "@category-labs/mera/viem";
@@ -20,6 +21,15 @@ import { wordlist } from "@scure/bip39/wordlists/english.js";
 import { PRF_NAMESPACES, deriveComputeKeys } from "@hourglass/shared";
 
 const rp = () => ({ id: window.location.hostname, name: "Hourglass" });
+
+/** Human-readable reasons for the Mera failures people actually hit. */
+export function explainPasskeyError(e: unknown): string {
+  const code = isMeraError(e) ? e.code : undefined;
+  if (code === "PRF_UNAVAILABLE")
+    return "This passkey provider doesn't support the PRF extension. Use iCloud Keychain, Google Password Manager or 1Password.";
+  if (code === "PASSKEY_OPERATION_FAILED") return "Passkey prompt was cancelled or no passkey was found for this site.";
+  return e instanceof Error ? e.message.split("\n")[0] : String(e);
+}
 
 function sessionFromPrf(prfOutput: Uint8Array): Secp256k1SigningSession {
   const seed = mnemonicToSeedSync(entropyToMnemonic(prfOutput, wordlist));

@@ -118,15 +118,34 @@ export async function fetchBalances(owner: Address, series: SeriesView[]) {
   return { usd, mon, hours: Object.fromEntries(series.map((s, i) => [s.id.toString(), hours[i]])) as Record<string, bigint> };
 }
 
-/** Sealed access blob for a lease, from its LeaseProvisioned event. */
-export async function fetchEncryptedAccess(leaseId: bigint): Promise<Hex | undefined> {
-  const logs = await publicClient.getContractEvents({
-    ...hg,
-    eventName: "LeaseProvisioned",
-    args: { leaseId },
-    fromBlock: BigInt(process.env.NEXT_PUBLIC_START_BLOCK ?? 0),
-  });
-  return logs[0]?.args.encryptedAccess;
+/**
+ * Sealed access blob for a lease, from its LeaseProvisioned event (emitted in the block where startedAt was set).
+ * Monad RPC caps eth_getLogs at 100 blocks, so first locate that block by interpolating on timestamps.
+ */
+export async function fetchEncryptedAccess(leaseId: bigint, startedAt: number): Promise<Hex | undefined> {
+  const latest = await publicClient.getBlock();
+  let hi = { n: latest.number, t: Number(latest.timestamp) };
+  let guess = hi.n - BigInt(Math.max(0, Math.round((hi.t - startedAt) / 0.4)));
+  for (let i = 0; i < 4; i++) {
+    const b = await publicClient.getBlock({ blockNumber: guess });
+    const dt = Number(b.timestamp) - startedAt;
+    if (Math.abs(dt) <= 2) break;
+    const rate = (hi.t - Number(b.timestamp)) / Number(hi.n - guess || 1n) || 0.4; // seconds per block
+    hi = { n: b.number, t: Number(b.timestamp) };
+    guess = guess - BigInt(Math.round(dt / rate));
+  }
+  for (const offset of [0n, -100n, 100n, -200n, 200n]) {
+    const from = guess + offset - 50n;
+    const logs = await publicClient.getContractEvents({
+      ...hg,
+      eventName: "LeaseProvisioned",
+      args: { leaseId },
+      fromBlock: from < 0n ? 0n : from,
+      toBlock: guess + offset + 49n,
+    });
+    if (logs[0]) return logs[0].args.encryptedAccess;
+  }
+  return undefined;
 }
 
 async function write(wallet: WalletClient, req: Parameters<WalletClient["writeContract"]>[0]) {

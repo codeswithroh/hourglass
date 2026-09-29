@@ -33,19 +33,21 @@ const driver: Driver =
 const store = new Store(env("STORE_PATH", "./data/leases.json"));
 const chain = makeChain(env("MONAD_RPC_URL", "https://testnet-rpc.monad.xyz"), HOURGLASS);
 const inflight = new Map<string, Promise<LeaseRecord>>();
+/** Demo/test control: while paused the gateway refuses to provision (simulates a provider outage). */
+let paused = false;
 
 async function provision(leaseId: bigint, sshPublicKey: string, encryptionPublicKey: `0x${string}`) {
   const id = leaseId.toString();
-  const existing = store.get(id);
-  if (existing) return existing;
 
-  // Never trust the caller: the lease must exist onchain, be ours, be awaiting provisioning,
-  // and the keys we were handed must match the ones the holder committed to at redemption.
+  // Never trust the caller: the lease must exist onchain, be ours, and the keys we were handed must match
+  // the ones the holder committed to at redemption — checked on every call, including idempotent repeats.
   const { lease, series } = await chain.loadLease(leaseId);
   if (getAddress(series.provider) !== PROVIDER) throw new HttpError(403, "lease belongs to another provider");
-  if (lease.status !== chain.LeaseStatus.Requested) throw new HttpError(409, `lease status ${lease.status}`);
   if (accessKeysHash(sshPublicKey, encryptionPublicKey) !== lease.accessKeysHash)
     throw new HttpError(400, "access keys do not match onchain commitment");
+  const existing = store.get(id);
+  if (existing) return existing;
+  if (lease.status !== chain.LeaseStatus.Requested) throw new HttpError(409, `lease status ${lease.status}`);
 
   let machine;
   try {
@@ -101,6 +103,7 @@ app.post("/v1/leases/:leaseId/provision", async (c) => {
   if (GATEWAY_TOKEN && c.req.header("authorization") !== `Bearer ${GATEWAY_TOKEN}`) throw new HttpError(401, "unauthorized");
   const leaseId = BigInt(c.req.param("leaseId"));
   const body = await c.req.json<{ sshPublicKey: string; encryptionPublicKey: `0x${string}` }>();
+  if (paused) return c.json({ error: "provider unavailable" }, 503);
   const key = leaseId.toString();
   let p = inflight.get(key);
   if (!p) {
@@ -135,6 +138,13 @@ app.post("/admin/leases/:leaseId/outage", async (c) => {
   if (driver instanceof SimulatedDriver) driver.setOutage(rec.instanceId, down);
   else if (down) await driver.terminate(rec.instanceId);
   return c.json({ leaseId: rec.leaseId, down });
+});
+
+app.post("/admin/pause", async (c) => {
+  if (!ADMIN_TOKEN || c.req.header("authorization") !== `Bearer ${ADMIN_TOKEN}`) throw new HttpError(401, "unauthorized");
+  const body = await c.req.json<{ paused?: boolean }>().catch(() => ({}) as { paused?: boolean });
+  paused = body.paused ?? true;
+  return c.json({ paused });
 });
 
 // Reaper: machines are shut down when the paid term ends.

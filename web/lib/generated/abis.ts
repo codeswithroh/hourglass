@@ -195,19 +195,6 @@ export const hourglassAbi = [
   },
   {
     "type": "function",
-    "name": "forwarder",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
     "name": "freeBond",
     "inputs": [
       {
@@ -378,6 +365,25 @@ export const hourglassAbi = [
             "internalType": "uint256"
           }
         ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isForwarder",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
       }
     ],
     "stateMutability": "view"
@@ -603,6 +609,19 @@ export const hourglassAbi = [
   },
   {
     "type": "function",
+    "name": "setExpectedWorkflowOwner",
+    "inputs": [
+      {
+        "name": "owner_",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "setForwarder",
     "inputs": [
       {
@@ -611,9 +630,9 @@ export const hourglassAbi = [
         "internalType": "address"
       },
       {
-        "name": "expectedWorkflowOwner_",
-        "type": "address",
-        "internalType": "address"
+        "name": "allowed",
+        "type": "bool",
+        "internalType": "bool"
       }
     ],
     "outputs": [],
@@ -765,19 +784,32 @@ export const hourglassAbi = [
   },
   {
     "type": "event",
+    "name": "ExpectedWorkflowOwnerUpdated",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "ForwarderUpdated",
     "inputs": [
       {
         "name": "forwarder",
         "type": "address",
-        "indexed": false,
+        "indexed": true,
         "internalType": "address"
       },
       {
-        "name": "expectedWorkflowOwner",
-        "type": "address",
+        "name": "allowed",
+        "type": "bool",
         "indexed": false,
-        "internalType": "address"
+        "internalType": "bool"
       }
     ],
     "anonymous": false

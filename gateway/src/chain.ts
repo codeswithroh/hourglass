@@ -9,7 +9,7 @@ export const monadTestnet = defineChain({
 });
 
 export function makeChain(rpcUrl: string, hourglass: Address) {
-  const client = createPublicClient({ chain: monadTestnet, transport: http(rpcUrl) });
+  const client = createPublicClient({ chain: monadTestnet, transport: http(rpcUrl, { retryCount: 6, retryDelay: 400 }) });
 
   async function loadLease(leaseId: bigint) {
     const lease = await client.readContract({ address: hourglass, abi: hourglassAbi, functionName: "getLease", args: [leaseId] });

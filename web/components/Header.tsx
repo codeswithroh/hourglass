@@ -98,7 +98,7 @@ function AccountButton() {
 
   return (
     <div className="flex items-center gap-2 text-sm">
-      {error && <span className="text-down text-xs max-w-48 truncate" title={error}>{error}</span>}
+      {error && <span role="alert" className="text-down text-xs max-w-72 leading-tight">{error}</span>}
       <button disabled={busy} onClick={signIn} className="text-muted hover:text-text px-2 py-1.5 disabled:opacity-50">
         {busy ? "Waiting…" : "Sign in"}
       </button>

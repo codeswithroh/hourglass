@@ -5,13 +5,16 @@
  *
  *   anvil --port 8547 &   (cd contracts && FORWARDER=... forge script ...)   — handled below
  */
-import { spawn, execSync } from "node:child_process";
+import { spawn, execSync, execFileSync } from "node:child_process";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
   createPublicClient, createWalletClient, http, parseAbi, encodeAbiParameters, bytesToHex, hexToBytes, type Address,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { foundry } from "viem/chains";
-import { sshPublicKey, x25519PublicKey, open } from "@hourglass/shared";
+import { sshPublicKey, sshPrivateKeyPem, x25519PublicKey, open } from "@hourglass/shared";
 
 const RPC = "http://127.0.0.1:8547";
 const DEPLOYER = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"; // anvil #0 (provider)
@@ -62,7 +65,7 @@ try {
     cwd: "gateway",
     env: {
       ...process.env, PORT: "8799", HOURGLASS_ADDRESS: hg, PROVIDER_ADDRESS: privateKeyToAccount(DEPLOYER).address,
-      MONAD_RPC_URL: RPC, DRIVER: "simulated", ADMIN_TOKEN: "admin", STORE_PATH: `/tmp/hg-e2e-${Date.now()}.json`,
+      MONAD_RPC_URL: RPC, DRIVER: process.env.DRIVER ?? "simulated", ADMIN_TOKEN: "admin", STORE_PATH: `/tmp/hg-e2e-${Date.now()}.json`,
     },
     stdio: "inherit",
   });
@@ -106,6 +109,27 @@ try {
   ]);
   const access = JSON.parse(new TextDecoder().decode(open(sealSeed, hexToBytes(a.encryptedAccess))));
   console.log("✓ PROVISIONED onchain; holder decrypts access:", access.command);
+
+  if ((process.env.DRIVER ?? "simulated") === "docker") {
+    // Real login with the passkey-derived key; a different key must be refused.
+    const dir = mkdtempSync(join(tmpdir(), "hg-ssh-"));
+    const key = join(dir, "hourglass"), other = join(dir, "other");
+    writeFileSync(key, sshPrivateKeyPem(sshSeed, "buyer@hourglass"), { mode: 0o600 });
+    writeFileSync(other, sshPrivateKeyPem(new Uint8Array(32).fill(9)), { mode: 0o600 });
+    const sshArgs = (k: string) => ["-i", k, "-p", String(access.port), "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null",
+      "-o", "IdentitiesOnly=yes", "-o", "BatchMode=yes", "-o", "ConnectTimeout=5", `${access.user}@${access.host}`];
+    let out = "";
+    for (let i = 0; i < 20 && !out; i++) {
+      try { out = execFileSync("ssh", [...sshArgs(key), "echo HOURGLASS_SSH_OK $(whoami)@$(hostname)"], { stdio: ["ignore", "pipe", "ignore"] }).toString().trim(); }
+      catch { await sleep(1500); }
+    }
+    if (!out.startsWith("HOURGLASS_SSH_OK")) throw new Error("ssh with passkey-derived key failed");
+    console.log(`✓ real SSH login with passkey-derived key: ${out}`);
+    let refused = false;
+    try { execFileSync("ssh", [...sshArgs(other), "true"], { stdio: "ignore" }); } catch { refused = true; }
+    if (!refused) throw new Error("foreign key was accepted");
+    console.log("✓ a different key is refused");
+  }
 
   // CRE step 2: probe loop, with an outage injected halfway.
   const probe = async () => {

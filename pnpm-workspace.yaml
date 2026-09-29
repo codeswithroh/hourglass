@@ -3,6 +3,7 @@ packages:
   - gateway
   - web
   - scripts
+  - e2e
 allowBuilds:
   unrs-resolver: true
   sharp: true

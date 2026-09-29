@@ -20,7 +20,7 @@ const abi = parseAbi([
   "function activeLeases() view returns (uint256[] ids, string[] healthUrls)",
   "function onReport(bytes metadata, bytes report)",
 ]);
-const pub = createPublicClient({ transport: http(RPC) });
+const pub = createPublicClient({ transport: http(RPC, { retryCount: 6, retryDelay: 400 }) });
 const chainId = await pub.getChainId();
 const wallet = createWalletClient({
   account: privateKeyToAccount(env("FORWARDER_KEY") as Hex),
@@ -30,10 +30,16 @@ const wallet = createWalletClient({
 
 const report = (kind: number, leaseId: bigint, payload: Hex) =>
   encodeAbiParameters([{ type: "uint8" }, { type: "uint256" }, { type: "bytes" }], [kind, leaseId, payload]);
-async function deliver(r: Hex, label: string) {
-  const hash = await wallet.writeContract({ address: HG, abi, functionName: "onReport", args: [`0x${"00".repeat(64)}`, r] });
-  const rc = await pub.waitForTransactionReceipt({ hash });
-  console.log(`[oracle] ${label} → ${rc.status} ${hash}`);
+// One signer: serialize deliveries so provision and probe reports never race on a nonce.
+let queue: Promise<unknown> = Promise.resolve();
+function deliver(r: Hex, label: string) {
+  const run = queue.then(async () => {
+    const hash = await wallet.writeContract({ address: HG, abi, functionName: "onReport", args: [`0x${"00".repeat(64)}`, r] });
+    const rc = await pub.waitForTransactionReceipt({ hash });
+    console.log(`[oracle] ${label} → ${rc.status} ${hash}`);
+  });
+  queue = run.catch((e) => console.log(`[oracle] ${label} failed: ${(e as Error).message.split("\n")[0]}`));
+  return run;
 }
 
 const seen = new Set<string>();

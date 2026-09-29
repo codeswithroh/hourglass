@@ -9,7 +9,7 @@ import { explorerTx } from "@/lib/chain";
 const fmtDate = (t: number) => new Date(t * 1000).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 
 export default function Market() {
-  const { data: market, error } = usePoll(fetchMarket, [], 4000);
+  const { data: market, error } = usePoll(fetchMarket, [], 6000);
   const [selected, setSelected] = useState<bigint>(0n);
   const series = market?.find((s) => s.id === selected) ?? market?.[0];
 
@@ -26,7 +26,7 @@ export default function Market() {
         </p>
       </section>
 
-      {error && <p className="text-down text-sm">RPC error: {error}</p>}
+      {error && !market && <p className="text-down text-sm">Network is busy — retrying… ({error.split("\n")[0]})</p>}
 
       <div className="grid lg:grid-cols-[1fr_360px] gap-6 items-start">
         <SeriesTable market={market} selected={series?.id} onSelect={setSelected} />

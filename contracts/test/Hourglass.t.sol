@@ -220,7 +220,7 @@ contract HourglassTest is Test {
 
     function test_workflowOwnerCheck() public {
         address wfOwner = makeAddr("wfOwner");
-        hg.setForwarder(forwarder, wfOwner);
+        hg.setExpectedWorkflowOwner(wfOwner);
         _buy(alice, 1);
         uint256 leaseId = _redeem(alice, 1);
 
@@ -232,6 +232,25 @@ contract HourglassTest is Test {
         bytes memory goodMeta = abi.encodePacked(bytes32(0), bytes10(0), wfOwner, bytes2(0));
         vm.prank(forwarder);
         hg.onReport(goodMeta, abi.encode(uint8(3), leaseId, bytes("")));
+    }
+
+    function test_multipleForwarders() public {
+        address sim = makeAddr("creSimulationForwarder");
+        hg.setForwarder(sim, true);
+        _buy(alice, 1);
+        uint256 leaseId = _redeem(alice, 1);
+        vm.prank(sim);
+        hg.onReport(new bytes(64), abi.encode(uint8(1), leaseId, abi.encode(bytes("x"), "u")));
+        hg.setForwarder(sim, false);
+        vm.prank(sim);
+        vm.expectRevert(abi.encodeWithSelector(Hourglass.InvalidSender.selector, sim));
+        hg.onReport(new bytes(64), abi.encode(uint8(3), leaseId, bytes("")));
+    }
+
+    function test_onlyOwnerManagesForwarders() public {
+        vm.prank(alice);
+        vm.expectRevert();
+        hg.setForwarder(alice, true);
     }
 
     function test_cannotDoubleSettle() public {

@@ -28,6 +28,11 @@ contract Deploy is Script {
         }
 
         Hourglass hg = new Hourglass(collateral, forwarder);
+        // Extra report senders: CRE production KeystoneForwarder and/or a dev oracle key.
+        address extraFwd = vm.envOr("EXTRA_FORWARDER", address(0));
+        if (extraFwd != address(0)) hg.setForwarder(extraFwd, true);
+        address prodFwd = vm.envOr("CRE_PROD_FORWARDER", address(0));
+        if (prodFwd != address(0)) hg.setForwarder(prodFwd, true);
 
         // Demo provider = deployer. In production each GPU cloud registers itself.
         hg.registerProvider("Hourglass Demo Cloud", "https://hourglass.compute/providers/demo.json");

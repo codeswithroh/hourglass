@@ -3,8 +3,17 @@ import { useState } from "react";
 import { bytesToHex, hexToBytes } from "viem";
 import { open, sshPrivateKeyPem, sshPublicKey } from "@hourglass/shared";
 import { useAccount } from "@/components/AccountProvider";
-import { useNow, usePoll } from "@/lib/use-poll";
-import { unlockComputeIdentity } from "@/lib/mera";
+import { useChainNow, usePoll } from "@/lib/use-poll";
+import { publicClient } from "@/lib/chain";
+
+// Shared across cards: one getBlock per few seconds, not one per card.
+let tsCache: { at: number; p: Promise<number> } | undefined;
+const latestTimestamp = () => {
+  if (!tsCache || Date.now() - tsCache.at > 3000)
+    tsCache = { at: Date.now(), p: publicClient.getBlock().then((b) => Number(b.timestamp)) };
+  return tsCache.p;
+};
+import { explainPasskeyError, unlockComputeIdentity } from "@/lib/mera";
 import {
   claimProvisionTimeout,
   fetchBalances,
@@ -98,7 +107,7 @@ function Holding({ s, held, onDone }: { s: SeriesView; held: bigint; onDone: () 
   const [hours, setHours] = useState(1);
   const [busy, setBusy] = useState<string>();
   const [err, setErr] = useState<string>();
-  const now = useNow();
+  const now = useChainNow(latestTimestamp);
   const fits = now >= s.deliveryStart && now + hours * 3600 <= s.deliveryEnd;
 
   async function go() {
@@ -116,7 +125,7 @@ function Holding({ s, held, onDone }: { s: SeriesView; held: bigint; onDone: () 
       await redeem(wallet, s.id, hours, ssh, enc);
       onDone();
     } catch (e) {
-      setErr(e instanceof Error ? e.message.split("\n")[0] : String(e));
+      setErr(explainPasskeyError(e));
     } finally {
       setBusy(undefined);
     }
@@ -164,7 +173,7 @@ function LeaseCard({ l, s, onDone }: { l: LeaseView; s?: SeriesView; onDone: () 
   const [access, setAccess] = useState<{ command: string; note?: string; pem: string; pub: string }>();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string>();
-  const now = useNow();
+  const now = useChainNow(latestTimestamp);
   const termEnd = l.startedAt + l.hours * 3600;
   const canSettle = l.statusCode === 2 && now >= termEnd;
   const canClaim = l.statusCode === 1 && now > l.requestedAt + PROVISION_TIMEOUT_S;
@@ -175,7 +184,7 @@ function LeaseCard({ l, s, onDone }: { l: LeaseView; s?: SeriesView; onDone: () 
     setErr(undefined);
     setBusy(true);
     try {
-      const box = await fetchEncryptedAccess(l.id);
+      const box = await fetchEncryptedAccess(l.id, l.startedAt);
       if (!box) throw new Error("access not published yet");
       const keys = await unlockComputeIdentity();
       const details = JSON.parse(new TextDecoder().decode(open(keys.sealingKey, hexToBytes(box)))) as {
@@ -186,7 +195,7 @@ function LeaseCard({ l, s, onDone }: { l: LeaseView; s?: SeriesView; onDone: () 
       keys.sshSeed.fill(0);
       keys.sealingKey.fill(0);
     } catch (e) {
-      setErr(e instanceof Error ? e.message.split("\n")[0] : String(e));
+      setErr(explainPasskeyError(e));
     } finally {
       setBusy(false);
     }
@@ -201,7 +210,7 @@ function LeaseCard({ l, s, onDone }: { l: LeaseView; s?: SeriesView; onDone: () 
       await fn(wallet, l.id);
       onDone();
     } catch (e) {
-      setErr(e instanceof Error ? e.message.split("\n")[0] : String(e));
+      setErr(explainPasskeyError(e));
     } finally {
       setBusy(false);
     }

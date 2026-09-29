@@ -1,7 +1,7 @@
 {
   "schedule": "0 */1 * * * *",
   "chainSelectorName": "monad-testnet",
-  "hourglassAddress": "0x0000000000000000000000000000000000000000",
+  "hourglassAddress": "0xA8EA1800A9bd1EE278902E9F782BEfFbad0CF380",
   "gasLimit": "1500000",
   "maxLeasesPerTick": 25
 }

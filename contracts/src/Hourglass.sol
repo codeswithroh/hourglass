@@ -84,7 +84,8 @@ contract Hourglass is IReceiver, Ownable, ReentrancyGuard {
 
     IERC20 public immutable collateral;
 
-    address public forwarder;
+    /// @dev Report senders: the CRE KeystoneForwarder (production), the MockKeystoneForwarder (simulation).
+    mapping(address => bool) public isForwarder;
     address public expectedWorkflowOwner;
     uint64 public provisionTimeout = 30 minutes;
 
@@ -131,7 +132,8 @@ contract Hourglass is IReceiver, Ownable, ReentrancyGuard {
     event LeaseSettled(uint256 indexed leaseId, uint16 uptimeBps, uint256 payoutToHolder);
     event LeaseSlashed(uint256 indexed leaseId, uint256 payoutToHolder, uint8 reason);
     event SeriesExpired(uint256 indexed seriesId, uint256 unredeemedHours, uint256 released);
-    event ForwarderUpdated(address forwarder, address expectedWorkflowOwner);
+    event ForwarderUpdated(address indexed forwarder, bool allowed);
+    event ExpectedWorkflowOwnerUpdated(address owner);
 
     // ------------------------------------------------------------------ errors
 
@@ -156,7 +158,8 @@ contract Hourglass is IReceiver, Ownable, ReentrancyGuard {
 
     constructor(IERC20 collateral_, address forwarder_) Ownable(msg.sender) {
         collateral = collateral_;
-        forwarder = forwarder_;
+        isForwarder[forwarder_] = true;
+        emit ForwarderUpdated(forwarder_, true);
     }
 
     // ================================================================== providers
@@ -359,7 +362,7 @@ contract Hourglass is IReceiver, Ownable, ReentrancyGuard {
     ///      PROBES      payload: abi.encode(uint256[] leaseIds, bool[] up)   (leaseId arg ignored)
     ///      FAILED      payload: (empty)
     function onReport(bytes calldata metadata, bytes calldata report) external override nonReentrant {
-        if (msg.sender != forwarder) revert InvalidSender(msg.sender);
+        if (!isForwarder[msg.sender]) revert InvalidSender(msg.sender);
         if (expectedWorkflowOwner != address(0)) {
             // metadata = workflowId (32) | workflowName (10) | workflowOwner (20) | reportId (2)
             address wfOwner = address(bytes20(metadata[42:62]));
@@ -397,10 +400,14 @@ contract Hourglass is IReceiver, Ownable, ReentrancyGuard {
 
     // ================================================================== admin
 
-    function setForwarder(address forwarder_, address expectedWorkflowOwner_) external onlyOwner {
-        forwarder = forwarder_;
-        expectedWorkflowOwner = expectedWorkflowOwner_;
-        emit ForwarderUpdated(forwarder_, expectedWorkflowOwner_);
+    function setForwarder(address forwarder_, bool allowed) external onlyOwner {
+        isForwarder[forwarder_] = allowed;
+        emit ForwarderUpdated(forwarder_, allowed);
+    }
+
+    function setExpectedWorkflowOwner(address owner_) external onlyOwner {
+        expectedWorkflowOwner = owner_;
+        emit ExpectedWorkflowOwnerUpdated(owner_);
     }
 
     function setProvisionTimeout(uint64 provisionTimeout_) external onlyOwner {

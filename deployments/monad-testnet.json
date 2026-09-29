@@ -1,0 +1,16 @@
+{
+  "chainId": 10143,
+  "startBlock": 66737557,
+  "hourglass": "0xA8EA1800A9bd1EE278902E9F782BEfFbad0CF380",
+  "collateral": "0x2B9D9040894a0f34f3E1228dE9E0bF9fE05117A5",
+  "series": {
+    "0": { "symbol": "gH100-USE", "token": "0x9d591abC5f477a22A13Ebc269d78126C65A56b4F" },
+    "1": { "symbol": "gA100-EUW", "token": "0x151dF710Ada39C8e081a24c0b9e6c28693f674dA" }
+  },
+  "provider": "0xFA035AE767Da4ADe75F1d5f5722B4a650c0bFc0A",
+  "forwarders": {
+    "creSimulation": "0xB9F79d863261869B234c481D1f9A7af84AeAd192",
+    "creProduction": "0xF8344CFd5c43616a4366C34E3EEE75af79a74482",
+    "devOracle": "0x383e73bC72CB0892647CA810995D13b4B0Bab8fC"
+  }
+}
