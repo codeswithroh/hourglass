@@ -1,0 +1,113 @@
+type Protocol {
+  id: ID!
+  hoursSold: BigInt!
+  primaryVolume: BigInt!
+  leases: Int!
+  activeLeases: Int!
+  leasesSlashed: Int!
+  compensationPaid: BigInt!
+  probes: Int!
+}
+
+type Provider {
+  id: ID!
+  name: String!
+  metadataURI: String!
+  bond: BigInt!
+  locked: BigInt!
+  hoursDelivered: BigInt!
+  leasesSettled: Int!
+  leasesSlashed: Int!
+  compensationPaid: BigInt!
+  "settled ÷ (settled + slashed), bps"
+  reliabilityBps: Int!
+  "mean seconds from redemption to machine ready"
+  avgProvisionSeconds: Int!
+  provisionSamples: Int!
+  series: [Series!]! @derivedFrom(field: "provider")
+}
+
+type Series {
+  id: ID!
+  provider: Provider!
+  token: String! @index
+  gpuModel: String!
+  region: String!
+  deliveryStart: BigInt!
+  deliveryEnd: BigInt!
+  minUptimeBps: Int!
+  penaltyPerHour: BigInt!
+  primaryPrice: BigInt!
+  primaryRemaining: BigInt!
+  hoursMinted: BigInt!
+  hoursRedeemed: BigInt!
+  primaryVolume: BigInt!
+  expired: Boolean!
+  trades: [PrimaryTrade!]! @derivedFrom(field: "series")
+  candles: [SeriesCandle!]! @derivedFrom(field: "series")
+  leases: [Lease!]! @derivedFrom(field: "series")
+}
+
+"Hourly OHLC of primary price and hours traded — the spot/forward curve per contract"
+type SeriesCandle {
+  id: ID!
+  series: Series!
+  bucket: BigInt! @index
+  open: BigInt!
+  high: BigInt!
+  low: BigInt!
+  close: BigInt!
+  hours: BigInt!
+  volume: BigInt!
+}
+
+type PrimaryTrade {
+  id: ID!
+  series: Series!
+  buyer: String! @index
+  recipient: String! @index
+  hours: BigInt!
+  cost: BigInt!
+  pricePerHour: BigInt!
+  timestamp: BigInt!
+  txHash: String!
+}
+
+enum LeaseStatus {
+  Requested
+  Active
+  Settled
+  Slashed
+}
+
+type Lease {
+  id: ID!
+  series: Series!
+  provider: Provider!
+  holder: String! @index
+  hours: Int!
+  status: LeaseStatus!
+  requestedAt: BigInt!
+  provisionedAt: BigInt
+  endedAt: BigInt
+  probesTotal: Int!
+  probesUp: Int!
+  uptimeBps: Int!
+  payout: BigInt!
+  slashReason: Int
+  probes: [Probe!]! @derivedFrom(field: "lease")
+}
+
+type Probe {
+  id: ID!
+  lease: Lease!
+  up: Boolean!
+  timestamp: BigInt!
+}
+
+type HourBalance {
+  id: ID!
+  series: Series!
+  owner: String! @index
+  balance: BigInt!
+}

@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=./node_modules/envio/evm.schema.json
+name: hourglass-indexer
+description: GPU-hour market — forward curve, provider reliability, lease lifecycle, DON probe history
+contracts:
+  - name: Hourglass
+    abi_file_path: abis/Hourglass.json
+    handler: src/EventHandlers.ts
+    events:
+      - event: ProviderRegistered
+      - event: BondDeposited
+      - event: BondWithdrawn
+      - event: SeriesCreated
+      - event: PrimaryOfferingSet
+      - event: HoursMinted
+      - event: PrimaryPurchase
+      - event: LeaseRequested
+      - event: LeaseProvisioned
+      - event: LeaseProbed
+      - event: LeaseSettled
+      - event: LeaseSlashed
+      - event: SeriesExpired
+  - name: ComputeHourToken
+    abi_file_path: abis/ComputeHourToken.json
+    handler: src/EventHandlers.ts
+    events:
+      - event: Transfer
+chains:
+  - id: 10143 # Monad testnet
+    start_block: 0
+    contracts:
+      - name: Hourglass
+        address: "${ENVIO_HOURGLASS_ADDRESS}"
+      - name: ComputeHourToken
+        # registered dynamically from SeriesCreated
