@@ -29,6 +29,8 @@ anyone   ──settle(lease) after term──▶ uptime < SLA ? bond pays holder
 anyone   ──claimProvisionTimeout(lease)──▶ no machine within 30 min ? full penalty to holder
 ```
 
+**Live app:** https://hourglass-compute.vercel.app (Monad testnet)
+
 ## Live on Monad testnet
 
 | Contract | Address |
@@ -37,6 +39,7 @@ anyone   ──claimProvisionTimeout(lease)──▶ no machine within 30 min ? 
 | Collateral (mock USD, 6 dp) | `0x2B9D9040894a0f34f3E1228dE9E0bF9fE05117A5` |
 | gH100-USE (H100 · US-East) | `0x9d591abC5f477a22A13Ebc269d78126C65A56b4F` |
 | gA100-EUW (A100 · EU-West) | `0x151dF710Ada39C8e081a24c0b9e6c28693f674dA` |
+| HourglassRouter (amount-in buys for cross-chain intents) | `0x8027ab94c9D2EfA566A7E4CEe805129F60016f24` |
 
 Report senders: CRE MockKeystoneForwarder (simulation), CRE KeystoneForwarder (production), and a dev oracle key.
 
@@ -53,3 +56,20 @@ Secrets live in `contracts/.env` (gitignored): `PRIVATE_KEY` (deployer · demo p
 Use a browser whose passkey provider supports PRF (Chrome/Safari with iCloud Keychain, Google Password Manager, or 1Password).
 
 See [TESTING.md](TESTING.md) for the full test matrix.
+
+## Hosted demo architecture
+
+On Vercel, the provider gateway runs as stateless Next.js API routes (`/api/gateway/...`) and an oracle relay
+(`/api/oracle/tick`) performs the same three jobs as the CRE workflows — provision on redeem, probe uptime, settle
+ended leases — triggered right after a redemption and while someone is viewing the portfolio. The production design
+runs those jobs as the Chainlink CRE workflows in `cre/` (`ORACLE=cre bash scripts/testnet-stack.sh`).
+
+## Sponsor integrations
+
+| Integration | Where | Status |
+|---|---|---|
+| Mera (entire account layer, signing sessions, stateless reconstruction) | `web/lib/mera.ts`, `web/components/AccountProvider.tsx` | live |
+| Mera PRF non-wallet keys (SSH identity + sealing key from a separate salt) | `shared/src/namespaces.ts`, `web/app/portfolio` | live |
+| Chainlink CRE (provision log-trigger + cron prober, Monad forwarders) | `cre/` | compiles to WASM; simulate with `cre login` + `scripts/cre-oracle.sh` |
+| Envio HyperIndex (reliability, candles, probes, protocol aggregates → Providers page) | `indexer/`, `web/lib/envio.ts` | verified locally; set `NEXT_PUBLIC_ENVIO_GRAPHQL_URL` to a hosted endpoint |
+| Aurora Intents Connect (pay from Base/Arbitrum/Ethereum/Polygon USDC → buy hours on Monad in one signature) | `web/lib/aurora.ts`, `web/components/AuroraFund.tsx`, `contracts/src/HourglassRouter.sol` | Monad **mainnet** only: needs `AURORA_API_KEY` + `scripts/deploy-mainnet.sh` |
