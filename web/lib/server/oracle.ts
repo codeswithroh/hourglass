@@ -89,6 +89,22 @@ async function run({ probe = true }: { probe?: boolean }): Promise<TickResult> {
   return out;
 }
 
+/** Probe specific leases right now (bypasses the tick rate limit). Used when an outage is injected. */
+export async function probeNow(ids: bigint[]) {
+  const pk = serverEnv.oracleKey();
+  if (!pk) return [];
+  const account = privateKeyToAccount(pk);
+  const wallet = createWalletClient({ account, chain, transport: http(undefined, { retryCount: 4, retryDelay: 400 }) });
+  const up = await Promise.all(ids.map((id) => health(id.toString()).then((h) => h.up)));
+  const hash = await wallet.writeContract({
+    ...hg,
+    functionName: "onReport",
+    args: [META, report(2, 0n, encodeAbiParameters([{ type: "uint256[]" }, { type: "bool[]" }], [ids, up]))],
+  });
+  await publicClient.waitForTransactionReceipt({ hash });
+  return ids.map((id, i) => `${id}=${up[i] ? "up" : "down"}`);
+}
+
 async function requestedKeys(leaseId: bigint, requestedAt: number) {
   const center = await blockNear(requestedAt);
   for (const w of windowsAround(center)) {

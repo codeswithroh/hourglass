@@ -7,3 +7,5 @@ docs-ref/
 .next/
 dist/
 gateway/data/
+.vercel
+.env*

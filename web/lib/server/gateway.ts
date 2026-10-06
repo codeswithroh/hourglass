@@ -2,8 +2,9 @@ import "server-only";
 /**
  * Hosted reference provider gateway (simulated GPU fleet). Same contract as gateway/ in the repo, but stateless
  * so it runs on serverless: sealed access is derived deterministically from (secret, lease, recipient key), so
- * every oracle node calling provision gets byte-identical output without a database. Only demo outage flags are
- * persisted (Vercel Blob).
+ * every oracle node calling provision gets byte-identical output without a database. Demo outage flags live in
+ * Vercel Blob when BLOB_READ_WRITE_TOKEN is set, otherwise in instance memory (the admin endpoint also records an
+ * immediate DOWN probe onchain, so an injected outage is visible even if the next request lands elsewhere).
  */
 import { createHmac } from "node:crypto";
 import { encodeAbiParameters, hexToBytes, hexToString, keccak256, bytesToHex, type Hex } from "viem";

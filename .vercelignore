@@ -1,0 +1,11 @@
+docs-ref
+contracts/lib
+contracts/out
+contracts/cache
+contracts/broadcast
+indexer
+cre
+e2e
+gateway/data
+**/node_modules
+**/.next
