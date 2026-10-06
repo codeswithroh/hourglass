@@ -24,7 +24,7 @@ test.describe.serial("Hourglass end-to-end on a live chain", () => {
     await expect(page.getByRole("button", { name: "Sign in to buy" })).toBeDisabled();
   });
 
-  test("passkey sign-up → buy → redeem → machine → sealed access → DON probes → outage", async ({ page, context }) => {
+  test("passkey sign-up → buy → redeem → machine → sealed access → oracle probes → outage", async ({ page, context }) => {
     const auth = await attachAuthenticator(context, page);
     await page.goto("/");
 
@@ -61,9 +61,9 @@ test.describe.serial("Hourglass end-to-end on a live chain", () => {
     expect(sshPub).toMatch(/^ssh-ed25519 AAAAC3NzaC1lZDI1NTE5[A-Za-z0-9+/=]+ hourglass$/);
     await page.screenshot({ path: "screenshots/02-running-access.png" });
 
-    // DON probes arrive and uptime is computed onchain.
-    await expect(page.getByText(/\(\d+\/\d+ DON probes\)/)).toBeVisible();
-    await expect(page.getByText(/\([1-9]\d*\/[1-9]\d* DON probes\)/)).toBeVisible({ timeout: 120_000 });
+    // oracle probes arrive and uptime is computed onchain.
+    await expect(page.getByText(/\(\d+\/\d+ oracle probes\)/)).toBeVisible();
+    await expect(page.getByText(/\([1-9]\d*\/[1-9]\d* oracle probes\)/)).toBeVisible({ timeout: 120_000 });
     await expect(page.getByText("100%").first()).toBeVisible();
 
     // Inject an outage at the provider. The next probe must record DOWN and push uptime below the SLA.

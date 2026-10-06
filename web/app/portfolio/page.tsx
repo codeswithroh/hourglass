@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { bytesToHex, hexToBytes } from "viem";
 import { open, sshPrivateKeyPem, sshPublicKey } from "@hourglass/shared";
 import { useAccount } from "@/components/AccountProvider";
@@ -29,6 +29,21 @@ import {
 } from "@/lib/hourglass";
 
 const PROVISION_TIMEOUT_S = 30 * 60;
+const HOSTED_ORACLE = process.env.NEXT_PUBLIC_HOSTED_ORACLE === "1";
+
+/** Hosted demo: nudge the oracle relay (provision / probe / settle). No-op when a real DON runs the workflows. */
+function kickOracle() {
+  if (HOSTED_ORACLE) fetch("/api/oracle/tick", { method: "POST" }).catch(() => {});
+}
+
+function useHostedOracle(active: boolean) {
+  useEffect(() => {
+    if (!HOSTED_ORACLE || !active) return;
+    kickOracle();
+    const t = setInterval(kickOracle, 50_000);
+    return () => clearInterval(t);
+  }, [active]);
+}
 
 export default function Portfolio() {
   const { address } = useAccount();
@@ -43,6 +58,8 @@ export default function Portfolio() {
     [address],
     2000,
   );
+  const needsOracle = !!leases?.some((l) => l.statusCode === 1 || l.statusCode === 2);
+  useHostedOracle(needsOracle);
 
   if (!address)
     return (
@@ -123,6 +140,7 @@ function Holding({ s, held, onDone }: { s: SeriesView; held: bigint; onDone: () 
       keys.sealingKey.fill(0);
       setBusy("Redeeming onchain…");
       await redeem(wallet, s.id, hours, ssh, enc);
+      kickOracle();
       onDone();
     } catch (e) {
       setErr(explainPasskeyError(e));
@@ -253,7 +271,7 @@ function LeaseCard({ l, s, onDone }: { l: LeaseView; s?: SeriesView; onDone: () 
       {l.statusCode === 2 && (
         <p className="text-xs text-muted">
           {now < termEnd
-            ? `Term ends ${new Date(termEnd * 1000).toLocaleTimeString()}. Probed by Chainlink DON every minute.`
+            ? `Term ends ${new Date(termEnd * 1000).toLocaleTimeString()}. Probed by the oracle network about every minute.`
             : "Term ended — settle to finalize."}
         </p>
       )}
@@ -321,7 +339,7 @@ function UptimeBar({ up, total, uptimeBps, minBps }: { up: number; total: number
     <div className="space-y-1">
       <div className="flex justify-between text-xs">
         <span className="text-muted">
-          Uptime <span className="num">({up}/{total} DON probes)</span>
+          Uptime <span className="num">({up}/{total} oracle probes)</span>
         </span>
         <span className={`num ${total === 0 ? "text-muted" : ok ? "text-up" : "text-down"}`}>
           {total === 0 ? "awaiting first probe" : pct(uptimeBps)} <span className="text-muted">/ SLA {pct(minBps)}</span>

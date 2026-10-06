@@ -214,7 +214,7 @@ function BuyPanel({ s }: { s: SeriesView }) {
 
       <p className="text-xs text-muted leading-relaxed">
         If measured uptime falls below the SLA, you receive the bond pro rata to downtime. If no machine is delivered within
-        30 minutes of redeeming, anyone can trigger a full payout to you. Uptime is measured by Chainlink oracle nodes, not
+        30 minutes of redeeming, anyone can trigger a full payout to you. Uptime is measured by an independent oracle network (Chainlink CRE), not
         the provider.
       </p>
     </div>
@@ -234,7 +234,7 @@ function HowItWorks() {
   const steps = [
     ["Buy", "Hours are minted on purchase against the provider's bond. Trade them like any token."],
     ["Redeem", "Burn hours. Your passkey derives an SSH key; the provider provisions a machine for it."],
-    ["Verify", "Chainlink oracle nodes independently probe the machine every minute and write results onchain."],
+    ["Verify", "Oracle nodes (Chainlink CRE) independently probe the machine about every minute and write results onchain."],
     ["Settle", "When the term ends, uptime is computed onchain. Below SLA, the bond pays you automatically."],
   ];
   return (

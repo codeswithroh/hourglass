@@ -14,6 +14,15 @@ test("sealed box round trip", () => {
   assert.throws(() => open(other, box));
 });
 
+test("seeded sealed box is deterministic and still opens", () => {
+  const priv = crypto.getRandomValues(new Uint8Array(32));
+  const seed = new Uint8Array(32).fill(3);
+  const a = seal(x25519PublicKey(priv), new TextEncoder().encode("x"), seed);
+  const b = seal(x25519PublicKey(priv), new TextEncoder().encode("x"), seed);
+  assert.deepEqual(a, b);
+  assert.equal(new TextDecoder().decode(open(priv, a)), "x");
+});
+
 test("ssh key is deterministic and ssh-keygen accepts it", () => {
   const seed = new Uint8Array(32).fill(7);
   assert.equal(sshPublicKey(seed), sshPublicKey(seed));

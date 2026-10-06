@@ -16,11 +16,13 @@ function deriveKey(shared: Uint8Array, ephPub: Uint8Array, recipientPub: Uint8Ar
   return hkdf(sha256, shared, concatBytes(ephPub, recipientPub), INFO, 32);
 }
 
-export function seal(recipientPub: Uint8Array, plaintext: Uint8Array): Uint8Array {
-  const ephPriv = randomBytes(32);
+export function seal(recipientPub: Uint8Array, plaintext: Uint8Array, seed?: Uint8Array): Uint8Array {
+  // With a seed, the box is deterministic (ephemeral key and nonce derived from it): a stateless gateway can
+  // answer every oracle node's provisioning call with byte-identical output. The seed must be unique per message.
+  const ephPriv = seed ? hkdf(sha256, seed, undefined, utf8ToBytes("hourglass.sealed.eph"), 32) : randomBytes(32);
   const ephPub = x25519.getPublicKey(ephPriv);
   const key = deriveKey(x25519.getSharedSecret(ephPriv, recipientPub), ephPub, recipientPub);
-  const nonce = randomBytes(24);
+  const nonce = seed ? hkdf(sha256, seed, undefined, utf8ToBytes("hourglass.sealed.nonce"), 24) : randomBytes(24);
   const ct = xchacha20poly1305(key, nonce).encrypt(plaintext);
   return concatBytes(ephPub, nonce, ct);
 }

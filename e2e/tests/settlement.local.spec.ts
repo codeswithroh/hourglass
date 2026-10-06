@@ -39,7 +39,7 @@ test.describe.serial("settlement paths (local chain, time travel)", () => {
     const leaseId = (await running.locator("span.num").first().textContent())!.slice(1);
     const card = page.locator("div.bg-panel").filter({ has: page.locator("span.num", { hasText: new RegExp(`^#${leaseId}$`) }) });
 
-    await expect(card.getByText(/\([1-9]\d*\/[1-9]\d* DON probes\)/)).toBeVisible({ timeout: 60_000 });
+    await expect(card.getByText(/\([1-9]\d*\/[1-9]\d* oracle probes\)/)).toBeVisible({ timeout: 60_000 });
     await fetch(`${GATEWAY}/admin/leases/${leaseId}/outage`, {
       method: "POST",
       headers: { authorization: "Bearer admin", "content-type": "application/json" },
