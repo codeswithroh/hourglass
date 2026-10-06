@@ -5,6 +5,8 @@ import { useAccount } from "@/components/AccountProvider";
 import { usePoll } from "@/lib/use-poll";
 import { buyPrimary, fetchBalances, fetchMarket, pct, usd, type SeriesView } from "@/lib/hourglass";
 import { explorerTx } from "@/lib/chain";
+import { AuroraFund } from "@/components/AuroraFund";
+import { AURORA_ENABLED } from "@/lib/aurora";
 
 const fmtDate = (t: number) => new Date(t * 1000).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 
@@ -211,6 +213,8 @@ function BuyPanel({ s }: { s: SeriesView }) {
         </p>
       )}
       {state.kind === "error" && <p className="text-sm text-down break-words">{state.msg}</p>}
+
+      {AURORA_ENABLED && <AuroraFund s={s} />}
 
       <p className="text-xs text-muted leading-relaxed">
         If measured uptime falls below the SLA, you receive the bond pro rata to downtime. If no machine is delivered within

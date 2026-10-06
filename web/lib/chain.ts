@@ -1,8 +1,18 @@
 import { createPublicClient, defineChain, http, type Address } from "viem";
 
 const LOCAL = process.env.NEXT_PUBLIC_CHAIN === "local";
+export const MAINNET = process.env.NEXT_PUBLIC_CHAIN === "mainnet";
 
-export const chain = LOCAL
+export const chain = MAINNET
+  ? defineChain({
+      id: 143,
+      name: "Monad",
+      nativeCurrency: { name: "MON", symbol: "MON", decimals: 18 },
+      rpcUrls: { default: { http: [process.env.NEXT_PUBLIC_RPC_URL ?? "https://rpc.monad.xyz"] } },
+      blockExplorers: { default: { name: "MonadVision", url: "https://monadvision.com" } },
+      contracts: { multicall3: { address: "0xcA11bde05977b3631167028862bE2a173976CA11" } },
+    })
+  : LOCAL
   ? defineChain({
       id: 31337,
       name: "Local",

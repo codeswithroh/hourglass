@@ -7,3 +7,5 @@ packages:
 allowBuilds:
   unrs-resolver: true
   sharp: true
+minimumReleaseAgeExclude:
+  - '@aurora-is-near/intents-connect@7.24.3'

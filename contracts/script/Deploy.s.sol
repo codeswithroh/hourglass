@@ -4,10 +4,12 @@ pragma solidity ^0.8.24;
 import {Script, console2} from "forge-std/Script.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Hourglass} from "../src/Hourglass.sol";
+import {HourglassRouter} from "../src/HourglassRouter.sol";
 import {MockUSDC} from "../src/mocks/MockUSDC.sol";
 
 /// @notice Deploys Hourglass and seeds a demo provider + two GPU-hour series.
-/// env: PRIVATE_KEY, CRE_FORWARDER, COLLATERAL (optional; deploys MockUSDC when unset)
+/// env: PRIVATE_KEY, CRE_FORWARDER, COLLATERAL (optional; deploys MockUSDC when unset),
+///      BOND (collateral units, default 50,000), PENALTY_H100 / PENALTY_A100 (per-hour lock)
 contract Deploy is Script {
     function run() external {
         uint256 pk = vm.envUint("PRIVATE_KEY");
@@ -37,18 +39,20 @@ contract Deploy is Script {
         // Demo provider = deployer. In production each GPU cloud registers itself.
         hg.registerProvider("Hourglass Demo Cloud", "https://hourglass.compute/providers/demo.json");
         collateral.approve(address(hg), type(uint256).max);
-        hg.depositBond(50_000e6);
+        uint256 bond = vm.envOr("BOND", uint256(50_000e6));
+        hg.depositBond(bond);
 
         uint64 start = uint64(block.timestamp);
         uint64 end = start + 14 days;
         uint256 h100 = hg.createSeries(
-            "H100-80GB-SXM", "US-EAST", start, end, 9_900, 6e6, "Hourglass H100 US-East 2wk", "gH100-USE"
+            "H100-80GB-SXM", "US-EAST", start, end, 9_900, vm.envOr("PENALTY_H100", uint256(6e6)), "Hourglass H100 US-East 2wk", "gH100-USE"
         );
-        hg.setPrimaryOffering(h100, 2.49e6, 2_000);
+        hg.setPrimaryOffering(h100, 2.49e6, vm.envOr("CAP_H100", uint256(2_000)));
         uint256 a100 = hg.createSeries(
-            "A100-80GB-PCIE", "EU-WEST", start, end, 9_800, 3e6, "Hourglass A100 EU-West 2wk", "gA100-EUW"
+            "A100-80GB-PCIE", "EU-WEST", start, end, 9_800, vm.envOr("PENALTY_A100", uint256(3e6)), "Hourglass A100 EU-West 2wk", "gA100-EUW"
         );
-        hg.setPrimaryOffering(a100, 1.29e6, 2_000);
+        hg.setPrimaryOffering(a100, 1.29e6, vm.envOr("CAP_A100", uint256(2_000)));
+        HourglassRouter router = new HourglassRouter(hg);
 
         vm.stopBroadcast();
 
@@ -56,5 +60,6 @@ contract Deploy is Script {
         console2.log("hourglass ", address(hg));
         console2.log("gH100-USE ", address(hg.getSeries(h100).token));
         console2.log("gA100-EUW ", address(hg.getSeries(a100).token));
+        console2.log("router    ", address(router));
     }
 }

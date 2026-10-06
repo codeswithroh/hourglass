@@ -19,6 +19,7 @@ const serialized = <T,>(fn: () => Promise<T>) => {
 export async function POST(req: Request) {
   const pk = process.env.FAUCET_PRIVATE_KEY as `0x${string}` | undefined;
   if (!pk) return Response.json({ skipped: "faucet not configured" });
+  if (process.env.NEXT_PUBLIC_CHAIN === "mainnet") return Response.json({ skipped: "no faucet on mainnet" });
   const { address } = (await req.json()) as { address: Address };
   if (!isAddress(address)) return Response.json({ error: "bad address" }, { status: 400 });
   if (dripped.has(address.toLowerCase())) return Response.json({ skipped: "already dripped" });

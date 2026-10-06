@@ -20,7 +20,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Header />
           <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-8">{children}</main>
           <footer className="border-t border-line text-xs text-muted py-4 text-center">
-            Hourglass · Monad testnet · Tokens are prepaid, physically-delivered compute credits
+            Hourglass · {process.env.NEXT_PUBLIC_CHAIN === "mainnet" ? "Monad mainnet" : "Monad testnet"} · Tokens are prepaid, physically-delivered compute credits
           </footer>
         </AccountProvider>
       </body>
