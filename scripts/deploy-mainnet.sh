@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 # Monad MAINNET deploy for the Aurora Intents flow (real USDC). Spends real MON and USDC from PRIVATE_KEY.
-# Prereqs (contracts/.env): PRIVATE_KEY funded with ~2.5 MON + BOND USDC on Monad mainnet; ORACLE_ADDRESS with ~1 MON.
+# Prereqs: PRIVATE_KEY (deployer) holds ~2 MON (~$0.06) + BOND USDC on Monad mainnet. The bond is withdrawable afterwards
+# (scripts/withdraw-mainnet.sh), and primary-sale proceeds go to this same wallet, so almost nothing is spent.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 set -a; source "$ROOT/contracts/.env"; set +a
 export FOUNDRY_DISABLE_NIGHTLY_WARNING=1
 RPC=${MONAD_MAINNET_RPC:-https://rpc.monad.xyz}
 USDC=0x754704bc059f8c67012fed69bc8a327a5aafb603
-BOND=${BOND:-40000000}   # $40: covers 5 h H100 at $4 + 5 h A100 at $3 of locked penalties
+BOND=${BOND:-10000000}   # $10: covers 5 h H100 + 5 h A100 at a $1/h penalty lock
 echo "deployer $DEPLOYER_ADDRESS: $(cast balance $DEPLOYER_ADDRESS --rpc-url $RPC --ether) MON, $(cast call $USDC 'balanceOf(address)(uint256)' $DEPLOYER_ADDRESS --rpc-url $RPC | awk '{print $1}') USDC units"
 read -r -p "Deploy Hourglass to Monad MAINNET with a ${BOND} USDC-unit bond? [y/N] " ok; [ "$ok" = "y" ] || exit 1
 cd "$ROOT/contracts"
-OUT=$(COLLATERAL=$USDC BOND=$BOND PENALTY_H100=4000000 PENALTY_A100=3000000 CAP_H100=5 CAP_A100=5 \
+OUT=$(COLLATERAL=$USDC BOND=$BOND PENALTY_H100=${PENALTY:-1000000} PENALTY_A100=${PENALTY:-1000000} CAP_H100=5 CAP_A100=5 \
   EXTRA_FORWARDER=$ORACLE_ADDRESS CRE_PROD_FORWARDER=0x76c9cf548b4179F8901cda1f8623568b58215E62 \
   CRE_FORWARDER=0x9eF6468C5f37b976E57d52054c693269479A784d \
   forge script script/Deploy.s.sol --rpc-url $RPC --broadcast --slow --gas-estimate-multiplier 160 2>&1)
