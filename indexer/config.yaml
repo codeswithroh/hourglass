@@ -27,14 +27,14 @@ contracts:
 chains:
   - id: 10143 # Monad testnet
     start_block: 66737557 # Hourglass deployment (deployments/monad-testnet.json)
-    # RPC sync within Monad's 100-block getLogs cap. With ENVIO_API_TOKEN, drop this block to use HyperSync.
+    # HyperSync (Envio Cloud / ENVIO_API_TOKEN) is primary; public RPC within Monad's 100-block getLogs cap as fallback.
     rpc:
       - url: ${ENVIO_RPC_URL:-https://testnet-rpc.monad.xyz}
-        for: sync
+        for: fallback
         initial_block_interval: 100
         interval_ceiling: 100
     contracts:
       - name: Hourglass
-        address: "${ENVIO_HOURGLASS_ADDRESS}"
+        address: "0xA8EA1800A9bd1EE278902E9F782BEfFbad0CF380" # deployments/monad-testnet.json
       - name: ComputeHourToken
         # registered dynamically from SeriesCreated
