@@ -1,0 +1,23 @@
+Initializing...
+Loading settings...
+Checking RPC connectivity...
+Compiling workflow...
+✓ Workflow compiled
+✓ Simulation limits enabled
+  HTTP: req=120kb resp=250kb timeout=10s | ConfHTTP: req=125kb resp=500kb timeout=1m30s | Consensus obs=25kb | ChainWrite evm_report=50kb evm_gas=10000000 solana_report=265b solana_cu=300000 | WASM binary=100mb compressed=20mb
+  Binary hash: a5d05b90dd71abd2c5fd5cb437d583577aba5953575bfa2290c244b954a46c22
+  Config hash: fada58b28125a113159f5eae7d1158de0826e23f482ac136d0e3d81bebe12577
+! Secret "GATEWAY_TOKEN" uses itself as the env var name — this is fragile and may cause confusion. Consider using a distinct env var name (e.g. "CRE_GATEWAY_TOKEN").
+2026-10-07T19:41:24Z [SIMULATION] Simulator Initialized
+2026-10-07T19:41:24Z [SIMULATION] Running trigger trigger=cron-trigger@1.0.0
+2026-10-07T19:41:26Z [USER LOG] probed 1 lease(s): 9=up
+2026-10-07T19:41:29Z [USER LOG] probe report → tx 0x685aa60be9826d771296cd4fd286c9e2af3c81fde683369366b34e8223d6130e
+✓ Workflow Simulation Result:
+"0x685aa60be9826d771296cd4fd286c9e2af3c81fde683369366b34e8223d6130e"
+2026-10-07T19:41:29Z [SIMULATION] Execution finished signal received
+2026-10-07T19:41:29Z [SIMULATION] Skipping WorkflowEngineV2
+╭──────────────────────────────────────────────────────╮
+│ Simulation complete! Ready to deploy your workflow?  │
+│                                                      │
+│ Run cre account access to request deployment access. │
+╰──────────────────────────────────────────────────────╯

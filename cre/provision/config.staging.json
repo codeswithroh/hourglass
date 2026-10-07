@@ -3,6 +3,6 @@
   "hourglassAddress": "0xA8EA1800A9bd1EE278902E9F782BEfFbad0CF380",
   "gasLimit": "600000",
   "gateways": {
-    "0xFA035AE767Da4ADe75F1d5f5722B4a650c0bFc0A": "http://localhost:8787"
+    "0xFA035AE767Da4ADe75F1d5f5722B4a650c0bFc0A": "https://hourglass-compute.vercel.app/api/gateway"
   }
 }
