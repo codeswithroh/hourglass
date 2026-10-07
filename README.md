@@ -70,6 +70,6 @@ runs those jobs as the Chainlink CRE workflows in `cre/` (`ORACLE=cre bash scrip
 |---|---|---|
 | Mera (entire account layer, signing sessions, stateless reconstruction) | `web/lib/mera.ts`, `web/components/AccountProvider.tsx` | live |
 | Mera PRF non-wallet keys (SSH identity + sealing key from a separate salt) | `shared/src/namespaces.ts`, `web/app/portfolio` | live |
-| Chainlink CRE (provision log-trigger + cron prober, Monad forwarders) | `cre/` | compiles to WASM; simulate with `cre login` + `scripts/cre-oracle.sh` |
-| Envio HyperIndex (reliability, candles, probes, protocol aggregates → Providers page) | `indexer/`, `web/lib/envio.ts` | verified locally; set `NEXT_PUBLIC_ENVIO_GRAPHQL_URL` to a hosted endpoint |
+| Chainlink CRE (provision log-trigger + cron prober, Monad forwarders) | `cre/` | simulated with `--broadcast` on Monad testnet — evidence in `cre/evidence/` |
+| Envio HyperIndex (reliability, candles, probes, protocol aggregates → Providers page) | `indexer/`, `web/lib/envio.ts` | live on Envio Cloud (`https://indexer.dev.hyperindex.xyz/aa369f5/v1/graphql`), consumed by the Providers page |
 | Aurora Intents Connect (pay from Base/Arbitrum/Ethereum/Polygon USDC → buy hours on Monad in one signature) | `web/lib/aurora.ts`, `web/components/AuroraFund.tsx`, `contracts/src/HourglassRouter.sol` | Monad **mainnet** only: needs `AURORA_API_KEY` + `scripts/deploy-mainnet.sh` |

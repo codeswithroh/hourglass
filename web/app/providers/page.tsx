@@ -6,7 +6,7 @@ import { explorerTx } from "@/lib/chain";
 
 export default function Providers() {
   const { data: market } = usePoll(fetchMarket, [], 5000);
-  const { data: indexed, error: indexError } = usePoll(fetchIndexedStats, [], 5000);
+  const { data: indexed, error: indexError } = usePoll(fetchIndexedStats, [], 20000);
   const providers = Object.values(
     (market ?? []).reduce<Record<string, NonNullable<typeof market>[number][]>>((acc, s) => {
       (acc[s.provider] ??= []).push(s);
