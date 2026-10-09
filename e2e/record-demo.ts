@@ -129,7 +129,7 @@ async function main() {
   });
 
   const timeline: { id: string; start: number }[] = [];
-  async function scene(id: string, action: () => Promise<void>, tail = 500) {
+  async function scene(id: string, action: () => Promise<void>, tail = 250) {
     const s = byId[id];
     const start = (Date.now() - t0) / 1000;
     timeline.push({ id, start });
@@ -157,17 +157,17 @@ async function main() {
 
   await scene("s01", async () => {
     await moveTo(page, page.getByRole("heading", { name: /Spot GPU-hours/ }));
-    await sleep(5000);
+    await sleep(4000);
     await moveTo(page, page.getByText("99.6%").first());
   });
 
   await scene("s02", async () => {
     await page.locator("#how").scrollIntoViewIfNeeded();
     await page.evaluate(() => document.getElementById("how")?.scrollIntoView({ behavior: "smooth", block: "start" }));
-    await sleep(2500);
+    await sleep(1500);
     for (const t of ["Buy", "Redeem", "Verify", "Settle"]) {
       await moveTo(page, page.locator("#how").getByText(t, { exact: true }));
-      await sleep(1700);
+      await sleep(1100);
     }
     await page.evaluate(() => document.getElementById("why")?.scrollIntoView({ behavior: "smooth", block: "start" }));
   });
@@ -258,7 +258,7 @@ async function main() {
 
   await scene("s12", async () => {
     await moveTo(page, page.getByText(/Term ends/));
-    await sleep(4000);
+    await sleep(2200);
     await moveTo(page, page.locator("[class*='text-down']", { hasText: /\d%/ }).first());
   });
 
