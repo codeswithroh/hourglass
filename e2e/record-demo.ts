@@ -148,61 +148,84 @@ async function main() {
     await caps;
   }
 
+  const addr = page.getByTestId("address");
+  const lease = () => page.locator("[data-testid^=lease-]").first();
+
   await page.goto(BASE);
-  await page.getByText("H100-80GB-SXM").filter({ visible: true }).first().waitFor();
+  await page.getByRole("heading", { name: /Spot GPU-hours/ }).waitFor();
   await sleep(800);
 
   await scene("s01", async () => {
-    await sleep(3000);
     await moveTo(page, page.getByRole("heading", { name: /Spot GPU-hours/ }));
+    await sleep(5000);
+    await moveTo(page, page.getByText("99.6%").first());
   });
 
   await scene("s02", async () => {
-    await moveTo(page, page.getByText("H100-80GB-SXM").filter({ visible: true }).first());
-    await sleep(2200);
-    await moveTo(page, page.getByText("A100-80GB-PCIE").filter({ visible: true }).first());
-    await sleep(2200);
-    await moveTo(page, page.getByText("$2.49").filter({ visible: true }).first());
-    await sleep(1800);
-    await moveTo(page, page.getByText("Bond protecting you"));
+    await page.locator("#how").scrollIntoViewIfNeeded();
+    await page.evaluate(() => document.getElementById("how")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    await sleep(2500);
+    for (const t of ["Buy", "Redeem", "Verify", "Settle"]) {
+      await moveTo(page, page.locator("#how").getByText(t, { exact: true }));
+      await sleep(1700);
+    }
+    await page.evaluate(() => document.getElementById("why")?.scrollIntoView({ behavior: "smooth", block: "start" }));
   });
 
   await scene("s03", async () => {
-    await click(page, page.getByRole("button", { name: "Get started" }));
-    await page.getByPlaceholder("Name for your passkey").pressSequentially("Demo trader", { delay: 60 });
-    await click(page, page.getByRole("button", { name: "Create" }));
-    await page.locator("header span.num").filter({ hasText: /^0x/ }).waitFor({ timeout: 60_000 });
-    await moveTo(page, page.locator("header span.num").filter({ hasText: /^0x/ }));
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+    await sleep(900);
+    await click(page, page.getByRole("link", { name: "Launch app" }).first());
+    await page.getByText("GPU-hours sold").first().waitFor();
+    await sleep(1500);
+    await moveTo(page, page.getByText("GPU-hours sold").first());
+    await sleep(1500);
+    await moveTo(page, page.getByText("Paid for SLA misses").first());
   });
 
   await scene("s04", async () => {
-    await page.getByText(/Your balance/).waitFor({ timeout: 90_000 });
-    await page.getByText("$500.00").waitFor({ timeout: 90_000 });
+    const card = page.getByTestId("series-0");
+    await card.scrollIntoViewIfNeeded();
+    await moveTo(page, card.getByText("SLA").first());
+    await sleep(1800);
+    await moveTo(page, card.getByText("Bond cover"));
+  });
+
+  await scene("s05", async () => {
+    await click(page, page.getByRole("button", { name: "Get started" }));
+    await page.getByPlaceholder("Name for your passkey").pressSequentially("Demo trader", { delay: 60 });
+    await click(page, page.getByRole("button", { name: "Create" }));
+    await addr.waitFor({ timeout: 60_000 });
+    await moveTo(page, addr);
+  });
+
+  await scene("s06", async () => {
+    await page.getByText("$500.00").first().waitFor({ timeout: 90_000 });
     const input = page.getByRole("spinbutton");
-    await click(page, input);
+    await input.scrollIntoViewIfNeeded();
+    await click(page, page.getByRole("button", { name: "fewer hours" }));
     await input.fill("1");
     await click(page, page.getByRole("button", { name: "Buy 1 h for $2.49" }));
     await page.getByText("Bought 1 h.").waitFor({ timeout: 120_000 });
   });
 
-  await scene("s05", async () => {
+  await scene("s07", async () => {
     await click(page, page.getByRole("link", { name: "Portfolio" }).first());
     const redeem = page.getByRole("button", { name: "Redeem 1 h for a machine" });
     await redeem.waitFor();
-    await sleep(1200);
+    await sleep(1500);
     await click(page, redeem);
-    await page.getByText(/Awaiting machine|Running/).first().waitFor({ timeout: 120_000 });
+    await lease().waitFor({ timeout: 120_000 });
   });
 
   let leaseId = "";
-  await scene("s06", async () => {
-    const card = page.locator("div.bg-panel", { hasText: /#\d+/ }).filter({ hasText: "H100-80GB-SXM" }).first();
-    await moveTo(page, card);
-    await card.getByText("Running").waitFor({ timeout: 180_000 });
-    leaseId = ((await card.locator("span.num").first().textContent()) ?? "#").slice(1);
+  await scene("s08", async () => {
+    await moveTo(page, lease());
+    await lease().getByText("Running").waitFor({ timeout: 180_000 });
+    leaseId = ((await lease().getAttribute("data-testid")) ?? "lease-").slice(6);
   });
 
-  await scene("s07", async () => {
+  await scene("s09", async () => {
     await click(page, page.getByRole("button", { name: "Unlock access with passkey" }));
     await page.getByText(/ssh -i ~\/\.ssh\/hourglass/).waitFor({ timeout: 60_000 });
     await moveTo(page, page.getByText(/ssh -i ~\/\.ssh\/hourglass/));
@@ -217,26 +240,29 @@ async function main() {
       body: JSON.stringify({ down }),
     });
 
-  await scene("s08", async () => {
-    await admin(false); // records an immediate "up" check so the bar fills on camera
+  await scene("s10", async () => {
+    await lease().scrollIntoViewIfNeeded();
+    await admin(false); // records an immediate "up" check so the gauge fills on camera
     await page.getByText(/\([1-9]\d*\/[1-9]\d* oracle probes\)/).waitFor({ timeout: 90_000 });
+    await moveTo(page, lease().locator("svg").first());
+    await sleep(2500);
     await moveTo(page, page.getByText(/oracle probes\)/));
   });
 
-  await scene("s09", async () => {
-    await sleep(2500);
+  await scene("s11", async () => {
+    await sleep(2000);
     await admin(true);
-    await page.locator("span.text-down", { hasText: /%/ }).first().waitFor({ timeout: 90_000 });
-    await moveTo(page, page.locator("span.text-down", { hasText: /%/ }).first());
+    await page.locator("[class*='text-down']", { hasText: /\d%/ }).first().waitFor({ timeout: 90_000 });
+    await moveTo(page, page.locator("[class*='text-down']", { hasText: /\d%/ }).first());
   });
 
-  await scene("s10", async () => {
+  await scene("s12", async () => {
     await moveTo(page, page.getByText(/Term ends/));
     await sleep(4000);
-    await moveTo(page, page.locator("span.text-down", { hasText: /%/ }).first());
+    await moveTo(page, page.locator("[class*='text-down']", { hasText: /\d%/ }).first());
   });
 
-  await scene("s11", async () => {
+  await scene("s13", async () => {
     await page.evaluate(async () => {
       localStorage.clear();
       sessionStorage.clear();
@@ -249,27 +275,26 @@ async function main() {
     await signIn.waitFor();
     await sleep(1200);
     await click(page, signIn);
-    await page.locator("header span.num").filter({ hasText: /^0x/ }).waitFor({ timeout: 60_000 });
+    await addr.waitFor({ timeout: 60_000 });
     await click(page, page.getByRole("button", { name: "Unlock access with passkey" }));
     await page.locator("div.num", { hasText: /^ssh-ed25519 / }).first().waitFor({ timeout: 60_000 });
     await moveTo(page, page.locator("div.num", { hasText: /^ssh-ed25519 / }).first());
   });
 
-  await scene("s12", async () => {
-    await click(page, page.getByRole("link", { name: "Providers" }));
-    const panel = page.locator("section", { hasText: "indexed by Envio HyperIndex" });
-    await panel.waitFor({ timeout: 60_000 }).catch(() => {});
-    await sleep(1500);
-    await moveTo(page, page.getByText("Oracle probes").first());
-    await sleep(2500);
-    await moveTo(page, page.getByText("Paid out for SLA misses").first());
-    await sleep(2000);
-    await moveTo(page, page.getByText("Avg time to machine").first());
+  await scene("s14", async () => {
+    await click(page, page.getByRole("link", { name: "Providers" }).first());
+    await page.getByText("delivered on time").waitFor({ timeout: 60_000 }).catch(() => {});
+    await sleep(1200);
+    await moveTo(page, page.getByText("delivered on time"));
+    await sleep(2200);
+    await moveTo(page, page.getByText("Time to machine").first());
+    await sleep(1800);
+    await moveTo(page, page.getByText("indexed by Envio HyperIndex").first());
   });
 
-  await scene("s13", async () => {
-    await click(page, page.getByRole("link", { name: "Market" }));
-    await sleep(1500);
+  await scene("s15", async () => {
+    await page.goto(BASE);
+    await sleep(1200);
     await moveTo(page, page.getByRole("heading", { name: /Spot GPU-hours/ }));
   }, 1500);
 
