@@ -18,7 +18,7 @@ async function warp(seconds: number) {
 }
 
 async function signUpAndBuy(page: Page, hours: number) {
-  await page.goto("/");
+  await page.goto("/app");
   await page.getByRole("button", { name: "Get started" }).click();
   await page.getByPlaceholder("Name for your passkey").fill("Settlement tester");
   await page.getByRole("button", { name: "Create" }).click();
@@ -34,10 +34,10 @@ test.describe.serial("settlement paths (local chain, time travel)", () => {
     await attachAuthenticator(context, page);
     await signUpAndBuy(page, 2);
     await page.getByRole("button", { name: "Redeem 1 h for a machine" }).click();
-    const running = page.locator("div.bg-panel", { hasText: /#\d+/ }).filter({ hasText: "Running" }).first();
+    const running = page.locator("[data-testid^=lease-]").filter({ hasText: "Running" }).first();
     await expect(running).toBeVisible({ timeout: 60_000 });
     const leaseId = (await running.locator("span.num").first().textContent())!.slice(1);
-    const card = page.locator("div.bg-panel").filter({ has: page.locator("span.num", { hasText: new RegExp(`^#${leaseId}$`) }) });
+    const card = page.getByTestId(`lease-${leaseId}`);
 
     await expect(card.getByText(/\([1-9]\d*\/[1-9]\d* oracle probes\)/)).toBeVisible({ timeout: 60_000 });
     await fetch(`${GATEWAY}/admin/leases/${leaseId}/outage`, {
@@ -45,7 +45,7 @@ test.describe.serial("settlement paths (local chain, time travel)", () => {
       headers: { authorization: "Bearer admin", "content-type": "application/json" },
       body: JSON.stringify({ down: true }),
     });
-    await expect(card.locator("span.text-down", { hasText: /%/ })).toBeVisible({ timeout: 60_000 });
+    await expect(card.locator("[class*='text-down']", { hasText: /\d%/ }).first()).toBeVisible({ timeout: 60_000 });
 
     await warp(3600);
     await expect(card.getByRole("button", { name: "Settle lease" })).toBeVisible({ timeout: 30_000 });
@@ -66,10 +66,10 @@ test.describe.serial("settlement paths (local chain, time travel)", () => {
     try {
       await signUpAndBuy(page, 1);
       await page.getByRole("button", { name: "Redeem 1 h for a machine" }).click();
-      const waiting = page.locator("div.bg-panel", { hasText: /#\d+/ }).filter({ hasText: "Awaiting machine" }).first();
+      const waiting = page.locator("[data-testid^=lease-]").filter({ hasText: "Awaiting machine" }).first();
       await expect(waiting).toBeVisible({ timeout: 60_000 });
       const leaseId = (await waiting.locator("span.num").first().textContent())!.slice(1);
-      const card = page.locator("div.bg-panel").filter({ has: page.locator("span.num", { hasText: new RegExp(`^#${leaseId}$`) }) });
+      const card = page.getByTestId(`lease-${leaseId}`);
       await warp(31 * 60);
       await expect(card.getByRole("button", { name: "Claim missed-delivery payout" })).toBeVisible({ timeout: 30_000 });
       await card.getByRole("button", { name: "Claim missed-delivery payout" }).click();

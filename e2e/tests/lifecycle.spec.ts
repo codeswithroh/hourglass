@@ -5,7 +5,7 @@ const GATEWAY = process.env.GATEWAY_URL ?? "http://localhost:8787";
 const ADMIN = process.env.ADMIN_TOKEN ?? "admin";
 
 async function addressShown(page: Page) {
-  const pill = page.locator("header span.num").filter({ hasText: /^0x[0-9a-fA-F]{4}…[0-9a-fA-F]{4}$/ });
+  const pill = page.getByTestId("address");
   await expect(pill).toBeVisible();
   return pill.textContent();
 }
@@ -15,9 +15,11 @@ test.describe.serial("Hourglass end-to-end on a live chain", () => {
   let sshPub: string;
   let leaseId = "0"; // overwritten by the lifecycle test; lease 0 exists on the testnet deployment
 
-  test("market renders live series from the chain", async ({ page }) => {
+  test("landing page → app: market renders live series from the chain", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: /Spot GPU-hours/ })).toBeVisible();
+    await page.getByRole("link", { name: "Launch app" }).first().click();
+    await expect(page).toHaveURL(/\/app$/);
     await expect(page.getByText("H100-80GB-SXM").filter({ visible: true }).first()).toBeVisible();
     await expect(page.getByText("A100-80GB-PCIE").filter({ visible: true }).first()).toBeVisible();
     await expect(page.getByText("$2.49").filter({ visible: true }).first()).toBeVisible();
@@ -26,7 +28,7 @@ test.describe.serial("Hourglass end-to-end on a live chain", () => {
 
   test("passkey sign-up → buy → redeem → machine → sealed access → oracle probes → outage", async ({ page, context }) => {
     const auth = await attachAuthenticator(context, page);
-    await page.goto("/");
+    await page.goto("/app");
 
     // One passkey ceremony creates the account. No seed phrase, no extension.
     await page.getByRole("button", { name: "Get started" }).click();
@@ -73,7 +75,7 @@ test.describe.serial("Hourglass end-to-end on a live chain", () => {
       body: JSON.stringify({ down: true }),
     });
     expect(res.status).toBe(200);
-    await expect(page.locator("span.text-down", { hasText: /%/ }).first()).toBeVisible({ timeout: 120_000 });
+    await expect(page.locator("[class*='text-down']", { hasText: /\d%/ }).first()).toBeVisible({ timeout: 120_000 });
     await page.screenshot({ path: "screenshots/03-sla-breach.png" });
 
     // Stateless test (Mera bounty): wipe every byte of site storage mid-session, reload, and rebuild
@@ -110,11 +112,11 @@ test.describe.serial("Hourglass end-to-end on a live chain", () => {
         isUserVerified: true, automaticPresenceSimulation: true, hasPrf: false,
       },
     });
-    await page.goto("/");
+    await page.goto("/app");
     await page.getByRole("button", { name: "Get started" }).click();
     await page.getByPlaceholder("Name for your passkey").fill("No PRF");
     await page.getByRole("button", { name: "Create" }).click();
-    await expect(page.locator("header [role=alert]")).toContainText(/PRF extension/);
+    await expect(page.getByRole("alert").filter({ hasText: /PRF extension/ })).toBeVisible();
   });
 
   test("gateway refuses forged provisioning requests", async () => {

@@ -1,255 +1,254 @@
 "use client";
-import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useAccount } from "@/components/AccountProvider";
+import { Card, Icon, Logo, Meter, Pill, ProbeStrip, Ring, Sparkline, type IconName } from "@/components/ui";
 import { usePoll } from "@/lib/use-poll";
-import { buyPrimary, fetchBalances, fetchMarket, pct, usd, type SeriesView } from "@/lib/hourglass";
-import { explorerTx } from "@/lib/chain";
-import { AuroraFund } from "@/components/AuroraFund";
-import { AURORA_ENABLED } from "@/lib/aurora";
+import { fetchHoursCurve, fetchIndexedStats } from "@/lib/envio";
+import { usd } from "@/lib/hourglass";
 
-const fmtDate = (t: number) => new Date(t * 1000).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+const STEPS: { icon: IconName; title: string; body: string }[] = [
+  { icon: "coins", title: "Buy", body: "Each token is one GPU-hour of a standard contract — model, region, delivery window, uptime SLA. Minted on purchase against the provider's bond." },
+  { icon: "key", title: "Redeem", body: "Burn hours to request a machine. Your passkey derives an SSH key that is committed onchain; nothing is stored." },
+  { icon: "pulse", title: "Verify", body: "A Chainlink CRE workflow provisions the machine and oracle nodes check it every minute. Uptime is computed by the contract." },
+  { icon: "shield", title: "Settle", body: "When the term ends anyone can settle. Below the SLA, the bond pays you pro rata — no claim form, no support ticket." },
+];
 
-export default function Market() {
-  const { data: market, error } = usePoll(fetchMarket, [], 6000);
-  const [selected, setSelected] = useState<bigint>(0n);
-  const series = market?.find((s) => s.id === selected) ?? market?.[0];
+const PILLARS: { icon: IconName; title: string; body: string; visual: React.ReactNode }[] = [
+  {
+    icon: "shield",
+    title: "Bond-backed hours",
+    body: "Providers lock collateral behind every hour they sell. Missed SLA → automatic payout. Missed delivery → the full bond.",
+    visual: (
+      <div className="space-y-2 w-full">
+        {[0.82, 0.64, 0.35].map((v, i) => <Meter key={i} value={v} h={10} />)}
+      </div>
+    ),
+  },
+  {
+    icon: "pulse",
+    title: "Oracle-verified uptime",
+    body: "Chainlink CRE nodes probe each machine independently and agree on the result before it is written onchain.",
+    visual: <ProbeStrip probes={[1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1].map(Boolean)} />,
+  },
+  {
+    icon: "key",
+    title: "Passkey-native",
+    body: "Mera turns one passkey into your Monad account, your SSH identity and the key your machine access is sealed to.",
+    visual: <Ring value={0.75} size={78} stroke={6} ticks={false}><Icon name="key" size={18} /></Ring>,
+  },
+];
+
+export default function Landing() {
+  const { data: stats } = usePoll(fetchIndexedStats, [], 30000);
+  const { data: curve } = usePoll(fetchHoursCurve, [], 60000);
+  const p = stats?.protocol;
 
   return (
-    <div className="space-y-8">
-      <section className="space-y-2">
-        <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">
-          Spot GPU-hours. <span className="text-sand">Physically settled.</span>
-        </h1>
-        <p className="text-muted max-w-2xl">
-          One token is one hour on a specific GPU, in a specific region, inside a delivery window. Redeem it for a real
-          machine. Every hour is backed by the provider&apos;s bond — if the machine misses its SLA, the bond pays you
-          automatically.
-        </p>
+    <div className="relative overflow-hidden">
+      <div className="absolute inset-0 grid-bg [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)] pointer-events-none" />
+
+      {/* nav */}
+      <header className="relative max-w-6xl mx-auto px-5 h-20 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2.5 font-semibold tracking-tight text-lg"><Logo /> Hourglass</Link>
+        <nav className="hidden md:flex gap-8 text-sm text-muted">
+          <a href="#how" className="hover:text-text">How it works</a>
+          <a href="#why" className="hover:text-text">Guarantees</a>
+          <a href="#monad" className="hover:text-text">Why Monad</a>
+          <a href="https://github.com/codeswithroh/hourglass" target="_blank" className="hover:text-text">GitHub</a>
+        </nav>
+        <Link href="/app" className="btn-primary px-4 py-2 text-sm">Launch app</Link>
+      </header>
+
+      {/* hero */}
+      <section className="relative max-w-6xl mx-auto px-5 pt-10 pb-20 grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-12 items-center">
+        <div className="space-y-7 min-w-0">
+          <Pill tone="up" pulse>Live on Monad testnet</Pill>
+          <h1 className="text-[40px] sm:text-6xl font-semibold tracking-[-.035em] leading-[1.02]">
+            Spot GPU-hours.<br /><span className="text-muted">Physically settled.</span>
+          </h1>
+          <p className="text-lg text-muted max-w-xl leading-relaxed">
+            Hourglass turns compute into a bonded, tradable token. Buy an hour of H100, redeem it for a real machine,
+            and get paid automatically when the provider misses its uptime guarantee.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/app" className="btn-primary px-6 py-3 flex items-center gap-2">Open the market <Icon name="arrow" /></Link>
+            <a href="#how" className="btn-ghost px-6 py-3">See how it works</a>
+          </div>
+          <div className="flex flex-wrap gap-6 pt-2">
+            {[["< 1s", "settlement"], ["1 passkey", "no seed phrase"], ["99%", "uptime SLA, enforced"]].map(([a, b]) => (
+              <div key={b}><div className="num text-2xl">{a}</div><div className="text-xs text-muted">{b}</div></div>
+            ))}
+          </div>
+        </div>
+
+        {/* hero visual: a machine card */}
+        <Card className="p-5 sm:p-6 relative min-w-0">
+          <div className="absolute -inset-px rounded-[1.25rem] bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="metal w-11 h-11 rounded-2xl grid place-items-center text-black font-semibold text-xs">H100</span>
+              <div><div className="font-medium">H100-80GB-SXM</div><div className="text-xs text-muted">US-EAST · 4 h lease</div></div>
+            </div>
+            <Pill tone="up" pulse>Running</Pill>
+          </div>
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-6 items-center justify-items-center sm:justify-items-stretch">
+            <Ring value={0.996} mark={0.99} tone="up" size={150} stroke={9}>
+              <div className="num text-3xl leading-none">99.6%</div>
+              <div className="text-[10px] text-muted mt-1">uptime · SLA 99%</div>
+            </Ring>
+            <div className="space-y-4 w-full min-w-0">
+              <div>
+                <div className="text-[11px] text-muted mb-1.5">Oracle checks</div>
+                <ProbeStrip probes={Array.from({ length: 30 }, (_, i) => i !== 17)} />
+              </div>
+              <div>
+                <div className="flex justify-between text-[11px] text-muted mb-1.5"><span>Term</span><span className="num">2h 41m left</span></div>
+                <Meter value={0.33} />
+              </div>
+              <div className="card-inset p-3 flex items-center justify-between">
+                <span className="text-[11px] text-muted">Bond protecting you</span>
+                <span className="num">$24.00</span>
+              </div>
+            </div>
+          </div>
+          <div className="mt-5 card-inset p-3 num text-[13px] flex items-center gap-2 truncate">
+            <Icon name="terminal" size={14} className="text-muted" /> ssh -i ~/.ssh/hourglass hourglass@h100-us-east…
+          </div>
+        </Card>
       </section>
 
-      {error && !market && <p className="text-down text-sm">Network is busy — retrying… ({error.split("\n")[0]})</p>}
+      {/* problem */}
+      <section className="relative max-w-6xl mx-auto px-5 pb-20">
+        <div className="grid md:grid-cols-3 gap-4">
+          {[
+            ["0", "liquid spot markets for GPU capacity", "Compute trades on bilateral contracts, PDFs and phone calls."],
+            ["5%+", "premium on compute-backed loans", "Lenders can't underwrite or hedge delivery risk."],
+            ["2", "exchanges launching compute futures", "CME and ICE are coming — but futures don't give you a machine."],
+          ].map(([n, t, b]) => (
+            <Card key={t} className="p-6">
+              <div className="num text-4xl">{n}</div>
+              <div className="mt-2 font-medium">{t}</div>
+              <p className="mt-2 text-sm text-muted">{b}</p>
+            </Card>
+          ))}
+        </div>
+      </section>
 
-      <div className="grid lg:grid-cols-[1fr_360px] gap-6 items-start">
-        <SeriesTable market={market} selected={series?.id} onSelect={setSelected} />
-        {series ? <BuyPanel s={series} /> : <div className="bg-panel border border-line rounded-xl h-72 animate-pulse" />}
-      </div>
-
-      <HowItWorks />
-    </div>
-  );
-}
-
-function SeriesTable({
-  market,
-  selected,
-  onSelect,
-}: {
-  market?: SeriesView[];
-  selected?: bigint;
-  onSelect: (id: bigint) => void;
-}) {
-  return (
-    <>
-      <div className="sm:hidden space-y-2">
-        {!market && <div className="bg-panel border border-line rounded-xl h-24 animate-pulse" />}
-        {market?.map((s) => (
-          <button
-            key={s.id.toString()}
-            onClick={() => onSelect(s.id)}
-            className={`w-full text-left bg-panel border rounded-xl p-4 ${selected === s.id ? "border-sand-dim" : "border-line"}`}
-          >
-            <div className="flex justify-between items-baseline">
-              <span className="font-medium">{s.gpuModel}</span>
-              <span className="num text-sand">{s.primaryPrice ? `${usd(s.primaryPrice)}/h` : "—"}</span>
+      {/* how it works */}
+      <section id="how" className="relative max-w-6xl mx-auto px-5 pb-24">
+        <h2 className="text-3xl font-semibold tracking-tight">How it works</h2>
+        <p className="text-muted mt-2">From token to terminal in four steps — every one of them onchain.</p>
+        <div className="mt-10 grid md:grid-cols-4 gap-4 relative">
+          <div className="hidden md:block absolute top-9 left-[12%] right-[12%] h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          {STEPS.map((s, i) => (
+            <div key={s.title} className="relative">
+              <span className="metal w-[72px] h-[72px] rounded-3xl grid place-items-center mx-auto shadow-[0_0_40px_rgba(255,255,255,.08)]">
+                <Icon name={s.icon} size={28} className="text-black" />
+              </span>
+              <div className="text-center mt-5">
+                <div className="text-[11px] text-muted num">0{i + 1}</div>
+                <div className="font-medium text-lg mt-1">{s.title}</div>
+                <p className="text-sm text-muted mt-2 leading-relaxed">{s.body}</p>
+              </div>
             </div>
-            <div className="text-xs text-muted mt-1">
-              {s.region} · SLA {pct(s.minUptimeBps)} · {s.primaryRemaining.toLocaleString()} h left · {fmtDate(s.deliveryStart)} → {fmtDate(s.deliveryEnd)}
+          ))}
+        </div>
+      </section>
+
+      {/* pillars */}
+      <section id="why" className="relative max-w-6xl mx-auto px-5 pb-24">
+        <h2 className="text-3xl font-semibold tracking-tight">Guarantees, not promises</h2>
+        <div className="mt-8 grid md:grid-cols-3 gap-4">
+          {PILLARS.map((p) => (
+            <Card key={p.title} className="p-6 flex flex-col gap-5">
+              <div className="h-24 grid place-items-center card-inset px-5">{p.visual}</div>
+              <div>
+                <div className="flex items-center gap-2 font-medium"><Icon name={p.icon} />{p.title}</div>
+                <p className="text-sm text-muted mt-2 leading-relaxed">{p.body}</p>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* live network */}
+      <section className="relative max-w-6xl mx-auto px-5 pb-24">
+        <Card className="p-8">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight">The network, live</h2>
+              <p className="text-sm text-muted mt-1">Indexed from Monad by Envio HyperIndex.</p>
             </div>
-          </button>
-        ))}
-      </div>
-    <div className="hidden sm:block bg-panel border border-line rounded-xl overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead className="text-muted text-xs uppercase tracking-wide">
-          <tr className="border-b border-line">
-            <th className="text-left font-medium px-4 py-3">Contract</th>
-            <th className="text-left font-medium px-4 py-3">Delivery</th>
-            <th className="text-right font-medium px-4 py-3">SLA</th>
-            <th className="text-right font-medium px-4 py-3">Price / h</th>
-            <th className="text-right font-medium px-4 py-3" title="Bond locked per hour ÷ price">Bond cover</th>
-            <th className="text-right font-medium px-4 py-3">Available</th>
-          </tr>
-        </thead>
-        <tbody>
-          {!market &&
-            [0, 1].map((i) => (
-              <tr key={i} className="border-b border-line/60">
-                <td colSpan={6} className="px-4 py-4">
-                  <div className="h-4 bg-panel-2 rounded animate-pulse" />
-                </td>
-              </tr>
+            <Pill tone="up" pulse>live</Pill>
+          </div>
+          <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              ["GPU-hours sold", p?.hoursSold, curve?.map((c) => c.hours)],
+              ["Volume", p ? usd(BigInt(p.primaryVolume), 0) : undefined, curve?.map((c) => c.volume)],
+              ["Oracle checks", p?.probes, undefined],
+              ["Paid for missed SLAs", p ? usd(BigInt(p.compensationPaid)) : undefined, undefined],
+            ].map(([label, value, spark]) => (
+              <div key={label as string}>
+                <div className="text-xs text-muted">{label as string}</div>
+                <div className="flex items-end gap-3 mt-2">
+                  <div className="num text-3xl">{(value as string) ?? "—"}</div>
+                  {Array.isArray(spark) && spark.length > 1 && <Sparkline values={spark.slice(-24)} />}
+                </div>
+              </div>
             ))}
-          {market?.map((s) => {
-            const cover = s.primaryPrice ? Number(s.penaltyPerHour) / Number(s.primaryPrice) : 0;
-            return (
-              <tr
-                key={s.id.toString()}
-                onClick={() => onSelect(s.id)}
-                className={`border-b border-line/60 cursor-pointer ${selected === s.id ? "bg-panel-2" : "hover:bg-panel-2/60"}`}
-              >
-                <td className="px-4 py-3">
-                  <div className="font-medium">{s.gpuModel}</div>
-                  <div className="text-xs text-muted">
-                    {s.region} · <span className="num">{s.symbol}</span> · {s.providerName}
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-muted">
-                  {fmtDate(s.deliveryStart)} → {fmtDate(s.deliveryEnd)}
-                </td>
-                <td className="px-4 py-3 text-right num">{pct(s.minUptimeBps)}</td>
-                <td className="px-4 py-3 text-right num text-sand">{s.primaryPrice ? usd(s.primaryPrice) : "—"}</td>
-                <td className="px-4 py-3 text-right num">{cover ? `${(cover * 100).toFixed(0)}%` : "—"}</td>
-                <td className="px-4 py-3 text-right num">{s.primaryRemaining.toLocaleString()} h</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+          </div>
+        </Card>
+      </section>
+
+      {/* why monad + stack */}
+      <section id="monad" className="relative max-w-6xl mx-auto px-5 pb-24 grid lg:grid-cols-2 gap-4">
+        <Card className="p-7">
+          <h3 className="text-xl font-semibold">Why Monad</h3>
+          <div className="mt-6 space-y-5">
+            {[
+              ["bolt", "400 ms blocks, sub-second finality", "Order-book trading and instant redemption feel like a centralized venue."],
+              ["coins", "Gas cheap enough for per-minute oracle checks", "Uptime is measured onchain, not summarised by the provider once a day."],
+              ["key", "Native P-256 precompile", "Passkeys are first-class accounts — no extension, no seed phrase."],
+            ].map(([i, t, b]) => (
+              <div key={t} className="flex gap-4">
+                <span className="w-10 h-10 rounded-xl bg-white/[.06] grid place-items-center shrink-0"><Icon name={i as IconName} /></span>
+                <div><div className="font-medium">{t}</div><p className="text-sm text-muted mt-1">{b}</p></div>
+              </div>
+            ))}
+          </div>
+        </Card>
+        <Card className="p-7">
+          <h3 className="text-xl font-semibold">Built with</h3>
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            {[
+              ["Monad", "settlement & order flow"],
+              ["Chainlink CRE", "provisioning + uptime oracle"],
+              ["Mera", "passkey accounts & keys"],
+              ["Envio HyperIndex", "reliability & market data"],
+            ].map(([n, d]) => (
+              <div key={n} className="card-inset p-4">
+                <div className="font-medium">{n}</div>
+                <div className="text-xs text-muted mt-1">{d}</div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6 text-sm text-muted">
+            First users: AI labs that need a week of H100s without a year-long contract, and GPU clouds that want to presell idle capacity.
+          </div>
+        </Card>
+      </section>
+
+      {/* cta */}
+      <section className="relative max-w-6xl mx-auto px-5 pb-20">
+        <Card className="p-10 text-center">
+          <Logo size={52} />
+          <h2 className="text-3xl font-semibold tracking-tight mt-5">Compute you can trade, redeem and trust.</h2>
+          <p className="text-muted mt-2">One passkey. One tap. A real machine.</p>
+          <Link href="/app" className="btn-primary inline-flex items-center gap-2 px-7 py-3 mt-7">Launch app <Icon name="arrow" /></Link>
+        </Card>
+        <footer className="text-center text-xs text-muted mt-10">
+          Hourglass · Monad testnet · Tokens are prepaid, physically-delivered compute credits
+        </footer>
+      </section>
     </div>
-    </>
-  );
-}
-
-function BuyPanel({ s }: { s: SeriesView }) {
-  const { address, wallet, touch } = useAccount();
-  const [hours, setHours] = useState(4);
-  const [state, setState] = useState<{ kind: "idle" | "pending" | "done" | "error"; msg?: string; tx?: string }>({
-    kind: "idle",
-  });
-  const { data: bal, refresh } = usePoll(
-    () => (address ? fetchBalances(address, [s]) : Promise.resolve(undefined)),
-    [address, s.id],
-    4000,
-  );
-
-  const h = BigInt(Math.max(0, Math.floor(hours || 0)));
-  const cost = s.primaryPrice * h;
-  const protection = s.penaltyPerHour * h;
-  const insufficient = bal ? bal.usd < cost : false;
-  const tooMany = h > s.primaryRemaining;
-  const disabled = !wallet || h === 0n || insufficient || tooMany || state.kind === "pending" || !s.primaryPrice;
-
-  const cta = useMemo(() => {
-    if (!address) return "Sign in to buy";
-    if (state.kind === "pending") return "Confirming…";
-    if (tooMany) return "Not enough hours available";
-    if (insufficient) return "Insufficient balance";
-    return `Buy ${h} h for ${usd(cost)}`;
-  }, [address, state.kind, tooMany, insufficient, h, cost]);
-
-  async function buy() {
-    if (!wallet) return;
-    touch();
-    setState({ kind: "pending" });
-    try {
-      const tx = await buyPrimary(wallet, s, h);
-      setState({ kind: "done", tx });
-      refresh();
-    } catch (e) {
-      setState({ kind: "error", msg: e instanceof Error ? e.message.split("\n")[0] : String(e) });
-    }
-  }
-
-  return (
-    <div className="bg-panel border border-line rounded-xl p-5 space-y-5 lg:sticky lg:top-20">
-      <div>
-        <div className="text-xs text-muted uppercase tracking-wide">Buy</div>
-        <div className="text-lg font-medium">{s.gpuModel}</div>
-        <div className="text-sm text-muted">{s.region}</div>
-      </div>
-
-      <label className="block">
-        <span className="text-xs text-muted">GPU-hours</span>
-        <div className="mt-1 flex items-center bg-panel-2 border border-line rounded-lg focus-within:border-sand-dim">
-          <input
-            type="number"
-            min={1}
-            value={hours}
-            onChange={(e) => setHours(Number(e.target.value))}
-            className="num bg-transparent flex-1 min-w-0 px-3 py-2.5 text-lg outline-none"
-          />
-          <span className="px-3 text-muted text-sm num whitespace-nowrap">{s.symbol}</span>
-        </div>
-      </label>
-
-      <dl className="text-sm space-y-2">
-        <Row k="Price" v={`${usd(s.primaryPrice)} / h`} />
-        <Row k="You pay" v={usd(cost)} strong />
-        <Row k="Bond protecting you" v={usd(protection)} hint="Locked from the provider's bond for exactly these hours" />
-        <Row k="SLA" v={`≥ ${pct(s.minUptimeBps)} uptime`} />
-        {bal && <Row k="Your balance" v={usd(bal.usd)} />}
-      </dl>
-
-      <button
-        disabled={disabled}
-        onClick={buy}
-        className="w-full bg-sand text-black font-medium rounded-lg py-3 disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        {cta}
-      </button>
-
-      {state.kind === "done" && (
-        <p className="text-sm text-up">
-          Bought {h.toString()} h.{" "}
-          <Link href="/portfolio" className="underline">
-            Redeem in Portfolio →
-          </Link>
-          {state.tx && explorerTx(state.tx) && (
-            <a className="block text-xs text-muted underline mt-1" href={explorerTx(state.tx)} target="_blank">
-              View transaction
-            </a>
-          )}
-        </p>
-      )}
-      {state.kind === "error" && <p className="text-sm text-down break-words">{state.msg}</p>}
-
-      {AURORA_ENABLED && <AuroraFund s={s} />}
-
-      <p className="text-xs text-muted leading-relaxed">
-        If measured uptime falls below the SLA, you receive the bond pro rata to downtime. If no machine is delivered within
-        30 minutes of redeeming, anyone can trigger a full payout to you. Uptime is measured by an independent oracle network (Chainlink CRE), not
-        the provider.
-      </p>
-    </div>
-  );
-}
-
-function Row({ k, v, strong, hint }: { k: string; v: string; strong?: boolean; hint?: string }) {
-  return (
-    <div className="flex justify-between gap-4" title={hint}>
-      <dt className="text-muted">{k}</dt>
-      <dd className={`num ${strong ? "text-text font-medium" : ""}`}>{v}</dd>
-    </div>
-  );
-}
-
-function HowItWorks() {
-  const steps = [
-    ["Buy", "Hours are minted on purchase against the provider's bond. Trade them like any token."],
-    ["Redeem", "Burn hours. Your passkey derives an SSH key; the provider provisions a machine for it."],
-    ["Verify", "Oracle nodes (Chainlink CRE) independently probe the machine about every minute and write results onchain."],
-    ["Settle", "When the term ends, uptime is computed onchain. Below SLA, the bond pays you automatically."],
-  ];
-  return (
-    <section className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-      {steps.map(([t, d], i) => (
-        <div key={t} className="bg-panel border border-line rounded-xl p-4">
-          <div className="text-xs text-sand num">0{i + 1}</div>
-          <div className="font-medium mt-1">{t}</div>
-          <p className="text-sm text-muted mt-1">{d}</p>
-        </div>
-      ))}
-    </section>
   );
 }

@@ -1,16 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #0b0c0e;
-  --panel: #121418;
-  --panel-2: #181b20;
-  --line: #23272e;
-  --text: #e8e6e1;
-  --muted: #8b8f98;
-  --sand: #e8b04b;
-  --sand-dim: #6b5220;
-  --up: #3ecf8e;
-  --down: #f2555a;
+  --bg: #09090b;
+  --panel: #131316;
+  --panel-2: #1b1b1f;
+  --line: #26262b;
+  --text: #ededef;
+  --muted: #85858d;
+  --sand: #f4f4f5; /* primary actions: white, as in the references */
+  --sand-dim: #3f3f46;
+  --up: #4ade80;
+  --down: #f87171;
 }
 
 @theme inline {
@@ -37,6 +37,74 @@ body {
 .num {
   font-family: var(--font-geist-mono), ui-monospace, monospace;
   font-variant-numeric: tabular-nums;
+}
+
+/* Glassy card from the references: subtle top-lit gradient + hairline border */
+.card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01)) , var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.card-inset {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 0.9rem;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  font-size: 11px;
+  color: var(--muted);
+}
+.btn-primary {
+  background: var(--sand);
+  color: #09090b;
+  font-weight: 600;
+  border-radius: 0.8rem;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.92;
+}
+.btn-primary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.btn-ghost {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  transition: border-color 0.15s;
+}
+.btn-ghost:hover:not(:disabled) {
+  border-color: #52525b;
+}
+.metal {
+  background: radial-gradient(120% 120% at 30% 20%, #f4f4f5 0%, #a1a1aa 28%, #3f3f46 60%, #18181b 100%);
+}
+.grid-bg {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.pulse-dot {
+  animation: pulse-dot 1.6s ease-in-out infinite;
+}
+@keyframes sand {
+  0% { transform: translateY(-6px); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(14px); opacity: 0; }
 }
 
 input[type="number"]::-webkit-inner-spin-button { opacity: 0.4; }
