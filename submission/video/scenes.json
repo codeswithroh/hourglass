@@ -1,0 +1,67 @@
+[
+ {
+  "id": "s01",
+  "text": "This is Hourglass: a spot market for GPU hours on Monad. Every token is one hour on a specific GPU, in a specific region, inside a delivery window. And every hour is backed by the provider's bond.",
+  "duration": 14.4
+ },
+ {
+  "id": "s02",
+  "text": "These are the live contracts. H100s in US East, A100s in Europe. For each one you see the uptime guarantee, the price per hour, and how much of the provider's bond protects every hour you buy.",
+  "duration": 13.504
+ },
+ {
+  "id": "s03",
+  "text": "Getting started takes one passkey. Mera turns it into a full Monad account. No seed phrase, no browser extension, and no custody backend.",
+  "duration": 9.109
+ },
+ {
+  "id": "s04",
+  "text": "The new account gets testnet gas and demo dollars, so we can trade right away. Let's buy one hour of H100. It settles on Monad in under a second.",
+  "duration": 9.835
+ },
+ {
+  "id": "s05",
+  "text": "In the portfolio, I redeem that hour for a real machine. The passkey derives a separate SSH key from its own namespace, and that key is committed onchain with the redemption.",
+  "duration": 11.456
+ },
+ {
+  "id": "s06",
+  "text": "The provider's gateway spins up the machine, and the Chainlink workflow posts the access details onchain, encrypted so that only my passkey can read them.",
+  "duration": 9.429
+ },
+ {
+  "id": "s07",
+  "text": "Unlocking access asks the passkey once more. Here is the SSH command, and the key itself, derived on the spot and never stored anywhere.",
+  "duration": 8.875
+ },
+ {
+  "id": "s08",
+  "text": "From now on, oracle nodes check the machine about once a minute and write the result onchain. Uptime is computed by the contract, not reported by the provider.",
+  "duration": 10.069
+ },
+ {
+  "id": "s09",
+  "text": "Now let's break it. I'll simulate an outage at the provider. The next check records the machine as down, and uptime falls below the ninety nine percent guarantee.",
+  "duration": 9.6
+ },
+ {
+  "id": "s10",
+  "text": "When the term ends, anyone can settle. Below the guarantee, the provider's bond pays me back in proportion to the downtime. And if no machine had shown up within thirty minutes, I could claim the full bond.",
+  "duration": 12.224
+ },
+ {
+  "id": "s11",
+  "text": "Everything lives in the passkey and on the chain. Watch: I wipe all of this site's storage, reload, and sign in again. Same account, same machine, same SSH key.",
+  "duration": 10.56
+ },
+ {
+  "id": "s12",
+  "text": "The providers page shows each provider's track record, straight from the contract, plus network stats indexed by Envio: hours sold, oracle checks, and money paid out for missed guarantees.",
+  "duration": 11.883
+ },
+ {
+  "id": "s13",
+  "text": "Hourglass. Compute you can trade, redeem, and actually trust, physically settled on Monad.",
+  "duration": 5.483
+ }
+]

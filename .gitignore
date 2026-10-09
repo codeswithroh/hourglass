@@ -9,3 +9,7 @@ dist/
 gateway/data/
 .vercel
 .env*
+submission/video/raw/
+submission/video/frames/
+submission/video/audio/
+submission/video/walkthrough.webm
