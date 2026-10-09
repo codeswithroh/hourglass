@@ -217,7 +217,7 @@ export function Ring({ value, size = 140, stroke = 10, mark, tone = "white", chi
   const v = Math.max(0, Math.min(1, value));
   const markAngle = mark !== undefined ? mark * 2 * Math.PI - Math.PI / 2 : 0;
   return (
-    <div className="relative inline-grid place-items-center" style={{ width: size, height: size }}>
+    <div className="relative inline-grid place-items-center shrink-0" style={{ width: size, height: size, minWidth: size }}>
       <svg width={size} height={size} className="absolute inset-0">
         {ticks &&
           Array.from({ length: 60 }, (_, i) => {
