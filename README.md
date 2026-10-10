@@ -1,75 +1,212 @@
+<div align="center">
+
+<img src="docs/images/logo.png" width="96" alt="Hourglass logo" />
+
 # Hourglass
 
-**A physically-settled spot market for GPU-hours on Monad.**
+**Spot GPU-hours on Monad. Physically settled.**
 
-One token = one GPU-hour of a standardized contract (GPU model · region · delivery window · SLA).
-Providers post a stablecoin bond; hours trade on an order book; holders burn tokens to get a real machine.
-A Chainlink CRE workflow provisions the machine and probes its health from independent oracle nodes —
-uptime is computed onchain, and missed SLAs are paid out of the provider's bond automatically.
+Buy an hour of GPU time as a token, redeem it for a real machine, and get paid automatically if the provider misses its uptime promise.
 
-## Repo layout
+[![Monad testnet](https://img.shields.io/badge/Monad-testnet-836EF9)](https://testnet.monadscan.com/address/0xA8EA1800A9bd1EE278902E9F782BEfFbad0CF380)
+[![Chainlink CRE](https://img.shields.io/badge/Chainlink-CRE-375BD2)](cre/)
+[![Mera passkeys](https://img.shields.io/badge/Mera-passkeys-111111)](web/lib/mera.ts)
+[![Envio](https://img.shields.io/badge/Envio-HyperIndex-FF6B35)](indexer/)
+[![Foundry tests](https://img.shields.io/badge/Foundry-23%20tests%20passing-2ea44f)](contracts/test)
+[![Playwright](https://img.shields.io/badge/Playwright-e2e%20on%20production-2ea44f)](e2e/tests)
 
-| Path | What |
+[**Live app**](https://hourglass-compute.vercel.app) ·
+[**Demo video**](submission/video/hourglass-walkthrough.mp4) ·
+[**Testing**](TESTING.md) ·
+[**Contracts**](contracts/src)
+
+<img src="docs/images/demo.gif" width="800" alt="Buying an hour, redeeming it for a machine, and watching uptime checks arrive" />
+
+</div>
+
+## Contents
+
+- [Why this exists](#why-this-exists)
+- [How it works](#how-it-works)
+- [What you can do](#what-you-can-do)
+- [Screenshots](#screenshots)
+- [Built with](#built-with)
+- [Live deployment](#live-deployment)
+- [Run it locally](#run-it-locally)
+- [Project structure](#project-structure)
+- [Testing](#testing)
+- [Videos](#videos)
+- [About the hosted demo](#about-the-hosted-demo)
+
+## Why this exists
+
+GPUs are one of the most valuable things you can rent, but buying GPU time is still done through private deals, often for a year at a time. There's no public price and no way to hedge. Nothing guarantees the machine shows up, and if it goes down mid-run you file a support ticket.
+
+Lenders charge 5% or more extra to finance GPUs because nobody can price the risk of a machine not being delivered. CME and ICE have announced compute futures, but those settle in cash. You still don't get a machine.
+
+Hourglass sells GPU time in hourly tokens that you can trade, redeem for a real machine, and get paid back on if the provider falls short.
+
+## How it works
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor P as Provider
+    actor H as Holder
+    participant HG as Hourglass contract
+    participant CRE as Chainlink CRE
+    participant GW as Provider gateway
+    P->>HG: deposit stablecoin bond, open a series (H100 · US-East · 99%)
+    H->>HG: buy hours (bond locks behind each hour)
+    H->>HG: redeem: burn hours + SSH key from passkey
+    HG-->>CRE: LeaseRequested event
+    CRE->>GW: provision machine (every oracle node)
+    GW-->>CRE: login details, encrypted to holder's passkey
+    CRE->>HG: signed report, lease is Active
+    loop about every minute
+        CRE->>GW: health check from every node
+        CRE->>HG: batched uptime report
+    end
+    H->>HG: settle when the term ends
+    HG-->>H: below 99%? bond pays back the downtime
+```
+
+1. A provider deposits stablecoins as a bond and opens a series, for example an H100 in US-East with a 99% uptime promise.
+2. Each token is one hour of that series. Every hour sold locks part of the provider's bond.
+3. To get a machine, the holder burns tokens. Their passkey creates an SSH key, and the public half goes onchain.
+4. A Chainlink CRE workflow asks the provider to start the machine and posts the login details onchain, encrypted so only the holder's passkey can read them.
+5. Oracle nodes check the machine about once a minute and record each result onchain. The contract computes uptime from those checks.
+6. When the term ends, anyone can settle. Below the promise, the bond pays the holder for the downtime. If no machine shows up within 30 minutes, the holder can claim the full penalty.
+
+## What you can do
+
+- Sign up with one passkey. No wallet, seed phrase, or extension.
+- Buy GPU-hours and see exactly how much of the provider's bond protects them.
+- Redeem hours for a machine and unlock its SSH command with your passkey.
+- Watch uptime build up check by check, with the promise marked on the gauge.
+- Settle a lease or claim a missed-delivery payout yourself.
+- Compare providers by delivery rate, bond at risk, time to machine, and payouts.
+- Wipe your browser data or switch devices, and get the same account and SSH key back from the passkey.
+
+## Screenshots
+
+| Landing page | Market |
 |---|---|
-| `contracts/` | Foundry: `Hourglass` core (bonds, series, primary sale, redemption, CRE receiver, settlement), `ComputeHourToken` |
-| `gateway/` | Reference provider gateway — idempotent provisioning API the CRE workflow calls (mock + RunPod drivers) |
-| `cre/` | Chainlink CRE workflows: provision-on-redeem (log trigger) and uptime prober (cron) |
-| `web/` | Next.js app — Mera passkey accounts, market, portfolio, redeem, passkey-derived SSH keys |
-| `indexer/` | Envio HyperIndex: forward curve, provider reliability, lease history |
+| <img src="docs/images/landing.png" alt="Landing page" /> | <img src="docs/images/market.png" alt="Market dashboard" /> |
 
-## Lifecycle
+| A running machine | Providers |
+|---|---|
+| <img src="docs/images/portfolio.png" alt="Portfolio with a running machine, uptime gauge and SSH access" /> | <img src="docs/images/providers.png" alt="Provider track record and network stats from Envio" /> |
 
-```
-provider ──depositBond──▶ Hourglass ──createSeries──▶ gH100-USE (ERC-20, 0 dp)
-buyer    ──buyPrimary / Kuru──▶ holds hours
-holder   ──redeem(hours, sshKey, x25519)──▶ LeaseRequested ──▶ CRE (log trigger) ──▶ gateway provisions
-CRE      ──onReport(PROVISIONED, sealed access, healthUrl)──▶ lease Active
-CRE cron ──probe healthUrl on every DON node ──▶ onReport(PROBES) ──▶ probesUp / probesTotal
-anyone   ──settle(lease) after term──▶ uptime < SLA ? bond pays holder pro rata
-anyone   ──claimProvisionTimeout(lease)──▶ no machine within 30 min ? full penalty to holder
-```
+<details>
+<summary>How it works section and phone layout</summary>
 
-**Live app:** https://hourglass-compute.vercel.app (Monad testnet)
+<img src="docs/images/how-it-works.png" alt="How it works" width="800" />
 
-## Live on Monad testnet
+<p>
+<img src="docs/images/mobile-landing.png" alt="Landing on a phone" width="260" />
+<img src="docs/images/mobile-market.png" alt="Market on a phone" width="260" />
+</p>
+</details>
+
+## Built with
+
+| Piece | What it does here | Where |
+|---|---|---|
+| **Monad** | Settles trades and redemptions in under a second. Cheap enough to sell compute by the hour and check uptime onchain every minute. | [`contracts/`](contracts) |
+| **Chainlink CRE** | Two workflows. One provisions machines when a redemption happens. The other checks uptime and writes it onchain. | [`cre/`](cre), evidence in [`cre/evidence/`](cre/evidence) |
+| **Mera** | One passkey becomes the Monad account. A second passkey salt gives the SSH key and the key login details are encrypted to. | [`web/lib/mera.ts`](web/lib/mera.ts), [`shared/src/namespaces.ts`](shared/src/namespaces.ts) |
+| **Envio HyperIndex** | Indexes provider records, trades, and every uptime check. The app reads it over GraphQL. | [`indexer/`](indexer) |
+| **Aurora Intents** | Pay with USDC from Base, Arbitrum, Ethereum or Polygon and buy hours on Monad in one signature. Built, needs mainnet and an API key to switch on. | [`web/lib/aurora.ts`](web/lib/aurora.ts), [`contracts/src/HourglassRouter.sol`](contracts/src/HourglassRouter.sol) |
+
+The app is Next.js on Vercel, the contracts use Foundry, and the tests use Playwright.
+
+## Live deployment
+
+App: https://hourglass-compute.vercel.app (Monad testnet)
 
 | Contract | Address |
 |---|---|
 | Hourglass | `0xA8EA1800A9bd1EE278902E9F782BEfFbad0CF380` |
-| Collateral (mock USD, 6 dp) | `0x2B9D9040894a0f34f3E1228dE9E0bF9fE05117A5` |
-| gH100-USE (H100 · US-East) | `0x9d591abC5f477a22A13Ebc269d78126C65A56b4F` |
-| gA100-EUW (A100 · EU-West) | `0x151dF710Ada39C8e081a24c0b9e6c28693f674dA` |
-| HourglassRouter (amount-in buys for cross-chain intents) | `0x8027ab94c9D2EfA566A7E4CEe805129F60016f24` |
+| HourglassRouter | `0x8027ab94c9D2EfA566A7E4CEe805129F60016f24` |
+| Test USD (6 decimals) | `0x2B9D9040894a0f34f3E1228dE9E0bF9fE05117A5` |
+| gH100-USE (H100, US-East) | `0x9d591abC5f477a22A13Ebc269d78126C65A56b4F` |
+| gA100-EUW (A100, EU-West) | `0x151dF710Ada39C8e081a24c0b9e6c28693f674dA` |
 
-Report senders: CRE MockKeystoneForwarder (simulation), CRE KeystoneForwarder (production), and a dev oracle key.
+Envio GraphQL: `https://indexer.dev.hyperindex.xyz/aa369f5/v1/graphql`
 
-## Run it
+To try it, open the app in Chrome or Safari with iCloud Keychain, Google Password Manager or 1Password, click **Get started**, and approve the passkey prompt. New accounts get testnet gas and 500 test dollars automatically.
+
+## Run it locally
+
+You need Node 22+, pnpm, and Foundry.
 
 ```bash
+git clone https://github.com/codeswithroh/hourglass && cd hourglass
 pnpm install
-bash scripts/testnet-stack.sh          # gateway + oracle + web on http://localhost:3000 (Monad testnet)
-ORACLE=cre bash scripts/testnet-stack.sh   # same, but the real CRE workflows run in the CRE simulator (needs `cre login`)
-bash scripts/dev-stack.sh              # everything on a local anvil chain
+cd contracts && forge test && cd ..
 ```
 
-Secrets live in `contracts/.env` (gitignored): `PRIVATE_KEY` (deployer · demo provider · faucet), `ORACLE_PRIVATE_KEY`, `GATEWAY_TOKEN`.
-Use a browser whose passkey provider supports PRF (Chrome/Safari with iCloud Keychain, Google Password Manager, or 1Password).
+Run everything on a local chain:
 
-See [TESTING.md](TESTING.md) for the full test matrix.
+```bash
+bash scripts/dev-stack.sh
+```
 
-## Hosted demo architecture
+Run the web app against the testnet deployment, the same way it runs on Vercel (needs `contracts/.env` with the demo keys):
 
-On Vercel, the provider gateway runs as stateless Next.js API routes (`/api/gateway/...`) and an oracle relay
-(`/api/oracle/tick`) performs the same three jobs as the CRE workflows — provision on redeem, probe uptime, settle
-ended leases — triggered right after a redemption and while someone is viewing the portfolio. The production design
-runs those jobs as the Chainlink CRE workflows in `cre/` (`ORACLE=cre bash scripts/testnet-stack.sh`).
+```bash
+bash scripts/hosted-local.sh
+```
 
-## Sponsor integrations
+Run the real Chainlink workflows in the CRE simulator (needs `cre login`):
 
-| Integration | Where | Status |
-|---|---|---|
-| Mera (entire account layer, signing sessions, stateless reconstruction) | `web/lib/mera.ts`, `web/components/AccountProvider.tsx` | live |
-| Mera PRF non-wallet keys (SSH identity + sealing key from a separate salt) | `shared/src/namespaces.ts`, `web/app/portfolio` | live |
-| Chainlink CRE (provision log-trigger + cron prober, Monad forwarders) | `cre/` | simulated with `--broadcast` on Monad testnet — evidence in `cre/evidence/` |
-| Envio HyperIndex (reliability, candles, probes, protocol aggregates → Providers page) | `indexer/`, `web/lib/envio.ts` | live on Envio Cloud (`https://indexer.dev.hyperindex.xyz/aa369f5/v1/graphql`), consumed by the Providers page |
-| Aurora Intents Connect (pay from Base/Arbitrum/Ethereum/Polygon USDC → buy hours on Monad in one signature) | `web/lib/aurora.ts`, `web/components/AuroraFund.tsx`, `contracts/src/HourglassRouter.sol` | Monad **mainnet** only: needs `AURORA_API_KEY` + `scripts/deploy-mainnet.sh` |
+```bash
+ORACLE=cre bash scripts/testnet-stack.sh
+```
+
+## Project structure
+
+```text
+contracts/   Hourglass, HourglassRouter, ComputeHourToken + Foundry tests and deploy scripts
+cre/         Chainlink CRE workflows: provision (log trigger) and prober (cron)
+web/         Next.js app: landing page, market, portfolio, providers, hosted gateway and oracle routes
+gateway/     Standalone provider gateway with simulated, Docker and RunPod backends
+indexer/     Envio HyperIndex config, schema and handlers
+shared/      Passkey key derivation, SSH key format, encrypted access (sealed box)
+e2e/         Playwright tests and the scripts that record the demo videos
+scripts/     Local stacks, dev oracle, mainnet deploy
+submission/  Logo, write-up and demo videos
+```
+
+## Testing
+
+| What | Command |
+|---|---|
+| Contracts (23 tests, including fuzz) | `cd contracts && forge test` |
+| Passkey crypto | `cd shared && pnpm test` |
+| Full flow on a local chain | `node --experimental-transform-types scripts/e2e-local.ts` |
+| Real SSH with the passkey key | `DRIVER=docker node --experimental-transform-types scripts/e2e-local.ts` |
+| Browser test against the live site | `cd e2e && BASE_URL=https://hourglass-compute.vercel.app npx playwright test tests/lifecycle.spec.ts` |
+
+The browser test signs up with a passkey, buys and redeems an hour, unlocks the machine, watches uptime checks, simulates an outage, and wipes all browser storage to check the same account comes back. More detail in [TESTING.md](TESTING.md).
+
+## Videos
+
+| Video | Length |
+|---|---|
+| [Product walkthrough](submission/video/hourglass-walkthrough.mp4) | 1:56 |
+| [Chainlink CRE live simulation](submission/cre-video/hourglass-cre.mp4) | 1:13 |
+| [Mera as the account layer](submission/mera-ux-video/hourglass-mera-ux.mp4) | 1:01 |
+| [Mera keys beyond the wallet](submission/mera-prf-video/hourglass-mera-prf.mp4) | 1:10 |
+| [Envio indexer](submission/envio-video/hourglass-envio.mp4) | 0:44 |
+
+## About the hosted demo
+
+The demo provider runs simulated GPUs, so the SSH address in the hosted app is a placeholder. A real SSH login with the passkey key is covered by the Docker test above.
+
+On Vercel, a small server job does the same three things as the Chainlink workflows (start machines, check uptime, settle leases). It runs right after a redemption and while someone has the portfolio open. The Chainlink workflows themselves are in [`cre/`](cre) and have been run against the same contracts.
+
+## Team
+
+Built by [Rohit Purkait](https://github.com/codeswithroh) for the Monad Metropolis hackathon.
