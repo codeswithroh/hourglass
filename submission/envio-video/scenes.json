@@ -1,0 +1,27 @@
+[
+ {
+  "id": "e1",
+  "text": "Hourglass indexes its whole market with Envio HyperIndex, deployed on Envio Cloud and synced live with Monad testnet.",
+  "duration": 8.304
+ },
+ {
+  "id": "e2",
+  "text": "One GraphQL query returns what would take thousands of RPC calls: protocol totals, provider reliability, and the average time to machine.",
+  "duration": 8.736
+ },
+ {
+  "id": "e3",
+  "text": "Every oracle check is indexed per lease, and each GPU-hour token is registered dynamically from the factory event.",
+  "duration": 7.752
+ },
+ {
+  "id": "e4",
+  "text": "The app reads it live. The providers page shows network stats and each provider's onchain track record, straight from the indexer.",
+  "duration": 8.328
+ },
+ {
+  "id": "e5",
+  "text": "And the market dashboard charts hours sold and volume over time, from the same index.",
+  "duration": 5.592
+ }
+]

@@ -13,3 +13,7 @@ submission/video/raw/
 submission/video/frames/
 submission/video/audio/
 submission/video/walkthrough.webm
+submission/*-video/raw/
+submission/*-video/audio/
+submission/*-video/frames/
+submission/*-video/walkthrough.webm

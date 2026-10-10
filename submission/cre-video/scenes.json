@@ -1,0 +1,37 @@
+[
+ {
+  "id": "c1",
+  "text": "Hourglass uses Chainlink CRE as its delivery oracle. When a holder redeems GPU hours, CRE provisions the machine through the provider's API, keeps checking its uptime, and writes every result back onchain.",
+  "duration": 14.016
+ },
+ {
+  "id": "c2",
+  "text": "Here's a live run on Monad testnet. I buy one GPU hour, then redeem it. The redemption emits a LeaseRequested event carrying the holder's SSH key.",
+  "duration": 10.728
+ },
+ {
+  "id": "c3",
+  "text": "That event triggers the provision workflow. Every node calls the provider's gateway, they agree on the encrypted access details, and a signed report is delivered to the Hourglass contract through the forwarder.",
+  "duration": 12.408
+ },
+ {
+  "id": "c4",
+  "text": "The lease is now active, with a health endpoint for the oracle to watch.",
+  "duration": 4.632
+ },
+ {
+  "id": "c5",
+  "text": "Next, the prober workflow runs on a cron. It reads the active leases from the contract, probes each machine from every node, and writes one batched uptime report onchain.",
+  "duration": 10.152
+ },
+ {
+  "id": "c6",
+  "text": "The contract now holds its first oracle-verified check. Uptime is computed from these reports, and if it falls below the guarantee, the provider's bond pays the holder automatically.",
+  "duration": 11.712
+ },
+ {
+  "id": "c7",
+  "text": "Both reports are real transactions on Monad testnet, delivered by the Chainlink forwarder.",
+  "duration": 5.88
+ }
+]

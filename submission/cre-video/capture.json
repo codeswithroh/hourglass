@@ -1,0 +1,296 @@
+{
+ "lease": 18,
+ "redeemTx": "0xa8eec4e703d590f42fd3a35f12a7afee15ae38ca4ddc794a8797413c117654a2",
+ "events": [
+  {
+   "t": 0.0,
+   "kind": "note",
+   "text": "Hourglass \u00d7 Chainlink CRE \u2014 live simulation on Monad testnet"
+  },
+  {
+   "t": 0.0,
+   "kind": "cmd",
+   "text": "cast send $HOURGLASS 'buyPrimary(uint256,uint256,uint256,address)' 0 1 2490000 $BUYER"
+  },
+  {
+   "t": 2.17,
+   "kind": "out",
+   "text": "status               1 (success)"
+  },
+  {
+   "t": 2.17,
+   "kind": "out",
+   "text": "transactionHash      0x9d6812e34e32aab241d627ac039729c01e65cd5d3a742a7c89558379774d83a6"
+  },
+  {
+   "t": 2.18,
+   "kind": "cmd",
+   "text": "cast send $HOURGLASS 'redeem(uint256,uint32,string,bytes32)' 0 1 \"$SSH_PUBKEY\" $SEALING_KEY"
+  },
+  {
+   "t": 4.64,
+   "kind": "out",
+   "text": "status               1 (success)"
+  },
+  {
+   "t": 4.64,
+   "kind": "out",
+   "text": "transactionHash      0xa8eec4e703d590f42fd3a35f12a7afee15ae38ca4ddc794a8797413c117654a2"
+  },
+  {
+   "t": 4.64,
+   "kind": "cmd",
+   "text": "cre workflow simulate provision --evm-tx-hash 0xa8eec4e7\u2026 --evm-event-index 1 --broadcast"
+  },
+  {
+   "t": 5.01,
+   "kind": "out",
+   "text": "Initializing..."
+  },
+  {
+   "t": 5.47,
+   "kind": "out",
+   "text": "Loading settings..."
+  },
+  {
+   "t": 5.47,
+   "kind": "out",
+   "text": "Checking RPC connectivity..."
+  },
+  {
+   "t": 6.45,
+   "kind": "out",
+   "text": "Compiling workflow..."
+  },
+  {
+   "t": 11.28,
+   "kind": "out",
+   "text": "\u2713 Workflow compiled"
+  },
+  {
+   "t": 11.35,
+   "kind": "out",
+   "text": "\u2713 Simulation limits enabled"
+  },
+  {
+   "t": 11.35,
+   "kind": "out",
+   "text": "  HTTP: req=120kb resp=250kb timeout=10s | ConfHTTP: req=125kb resp=500kb timeout=1m30s | Consensus obs=25kb | ChainWrite evm_report=50kb evm_gas=10000000 solana_report=265b solana_cu=300000 | WASM binary=100mb compressed=20mb"
+  },
+  {
+   "t": 11.35,
+   "kind": "out",
+   "text": "  Binary hash: e7160f966fda2276cd8bcd29987feaa3f608684bac2e41295fc07aba4d8a3ea5"
+  },
+  {
+   "t": 11.35,
+   "kind": "out",
+   "text": "  Config hash: ddae0d35d8abd8e0dc54b9579da0f078b2fec9e0c5d2806da9b69492dd6dcf12"
+  },
+  {
+   "t": 11.42,
+   "kind": "out",
+   "text": "Fetching transaction receipt for 0xa8eec4e703d590f42fd3a35f12a7afee15ae38ca4ddc794a8797413c117654a2..."
+  },
+  {
+   "t": 11.77,
+   "kind": "out",
+   "text": "2026-10-11T02:10:50Z [SIMULATION] Simulator Initialized"
+  },
+  {
+   "t": 11.77,
+   "kind": "out",
+   "text": "2026-10-11T02:10:50Z [SIMULATION] Running trigger trigger=evm:ChainSelector:2183018362218727504@1.0.0"
+  },
+  {
+   "t": 11.81,
+   "kind": "out",
+   "text": "2026-10-11T02:10:50Z [USER LOG] lease 18: 1h requested by 0xFA035AE767Da4ADe75F1d5f5722B4a650c0bFc0A from 0xFA035AE767Da4ADe75F1d5f5722B4a650c0bFc0A"
+  },
+  {
+   "t": 17.03,
+   "kind": "out",
+   "text": "2026-10-11T02:10:55Z [USER LOG] lease 18: provisioned \u2192 tx 0xf342b50a27a2241f830670591471998004c3fa9b0aa7a1cc66173471368409da"
+  },
+  {
+   "t": 17.04,
+   "kind": "out",
+   "text": "\u2713 Workflow Simulation Result:"
+  },
+  {
+   "t": 17.04,
+   "kind": "out",
+   "text": "\"provisioned:0xf342b50a27a2241f830670591471998004c3fa9b0aa7a1cc66173471368409da\""
+  },
+  {
+   "t": 17.04,
+   "kind": "out",
+   "text": "2026-10-11T02:10:55Z [SIMULATION] Execution finished signal received"
+  },
+  {
+   "t": 17.04,
+   "kind": "out",
+   "text": "2026-10-11T02:10:55Z [SIMULATION] Skipping WorkflowEngineV2"
+  },
+  {
+   "t": 17.05,
+   "kind": "out",
+   "text": "\u256d\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e"
+  },
+  {
+   "t": 17.05,
+   "kind": "out",
+   "text": "\u2502 Simulation complete! Ready to deploy your workflow?  \u2502"
+  },
+  {
+   "t": 17.05,
+   "kind": "out",
+   "text": "\u2502                                                      \u2502"
+  },
+  {
+   "t": 17.05,
+   "kind": "out",
+   "text": "\u2502 Run cre account access to request deployment access. \u2502"
+  },
+  {
+   "t": 17.05,
+   "kind": "out",
+   "text": "\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f"
+  },
+  {
+   "t": 18.99,
+   "kind": "cmd",
+   "text": "cast call $HOURGLASS 'getLease(uint256)' 18"
+  },
+  {
+   "t": 20.05,
+   "kind": "out",
+   "text": "lease 18: status=Active  oracle probes=0/0  healthUrl=\"https://hourglass-compute.vercel.app/api/gateway/v1/leases/18/health\""
+  },
+  {
+   "t": 20.05,
+   "kind": "cmd",
+   "text": "cre workflow simulate prober --broadcast"
+  },
+  {
+   "t": 20.23,
+   "kind": "out",
+   "text": "Initializing..."
+  },
+  {
+   "t": 20.69,
+   "kind": "out",
+   "text": "Loading settings..."
+  },
+  {
+   "t": 20.69,
+   "kind": "out",
+   "text": "Checking RPC connectivity..."
+  },
+  {
+   "t": 21.56,
+   "kind": "out",
+   "text": "Compiling workflow..."
+  },
+  {
+   "t": 25.85,
+   "kind": "out",
+   "text": "\u2713 Workflow compiled"
+  },
+  {
+   "t": 25.95,
+   "kind": "out",
+   "text": "\u2713 Simulation limits enabled"
+  },
+  {
+   "t": 25.95,
+   "kind": "out",
+   "text": "  HTTP: req=120kb resp=250kb timeout=10s | ConfHTTP: req=125kb resp=500kb timeout=1m30s | Consensus obs=25kb | ChainWrite evm_report=50kb evm_gas=10000000 solana_report=265b solana_cu=300000 | WASM binary=100mb compressed=20mb"
+  },
+  {
+   "t": 25.95,
+   "kind": "out",
+   "text": "  Binary hash: a5d05b90dd71abd2c5fd5cb437d583577aba5953575bfa2290c244b954a46c22"
+  },
+  {
+   "t": 25.95,
+   "kind": "out",
+   "text": "  Config hash: fada58b28125a113159f5eae7d1158de0826e23f482ac136d0e3d81bebe12577"
+  },
+  {
+   "t": 26.03,
+   "kind": "out",
+   "text": "2026-10-11T02:11:04Z [SIMULATION] Simulator Initialized"
+  },
+  {
+   "t": 26.03,
+   "kind": "out",
+   "text": "2026-10-11T02:11:04Z [SIMULATION] Running trigger trigger=cron-trigger@1.0.0"
+  },
+  {
+   "t": 27.48,
+   "kind": "out",
+   "text": "2026-10-11T02:11:06Z [USER LOG] probed 1 lease(s): 18=up"
+  },
+  {
+   "t": 30.26,
+   "kind": "out",
+   "text": "2026-10-11T02:11:08Z [USER LOG] probe report \u2192 tx 0xd4dd29353fcb4e581583ea38496b98b3173e949f82714246bac89c1107d1715c"
+  },
+  {
+   "t": 30.26,
+   "kind": "out",
+   "text": "\u2713 Workflow Simulation Result:"
+  },
+  {
+   "t": 30.26,
+   "kind": "out",
+   "text": "\"0xd4dd29353fcb4e581583ea38496b98b3173e949f82714246bac89c1107d1715c\""
+  },
+  {
+   "t": 30.26,
+   "kind": "out",
+   "text": "2026-10-11T02:11:08Z [SIMULATION] Execution finished signal received"
+  },
+  {
+   "t": 30.26,
+   "kind": "out",
+   "text": "2026-10-11T02:11:08Z [SIMULATION] Skipping WorkflowEngineV2"
+  },
+  {
+   "t": 30.28,
+   "kind": "out",
+   "text": "\u256d\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e"
+  },
+  {
+   "t": 30.28,
+   "kind": "out",
+   "text": "\u2502 Simulation complete! Ready to deploy your workflow?  \u2502"
+  },
+  {
+   "t": 30.28,
+   "kind": "out",
+   "text": "\u2502                                                      \u2502"
+  },
+  {
+   "t": 30.28,
+   "kind": "out",
+   "text": "\u2502 Run cre account access to request deployment access. \u2502"
+  },
+  {
+   "t": 30.28,
+   "kind": "out",
+   "text": "\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f"
+  },
+  {
+   "t": 30.48,
+   "kind": "cmd",
+   "text": "cast call $HOURGLASS 'getLease(uint256)' 18"
+  },
+  {
+   "t": 32.0,
+   "kind": "out",
+   "text": "lease 18: status=Active  oracle probes=1/1  healthUrl=\"https://hourglass-compute.vercel.app/api/gateway/v1/leases/18/health\""
+  }
+ ]
+}

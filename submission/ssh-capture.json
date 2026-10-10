@@ -1,0 +1,64 @@
+{
+ "events": [
+  {
+   "t": 0.0,
+   "kind": "cmd",
+   "text": "DRIVER=docker node scripts/e2e-local.ts   # anvil + Hourglass + provider gateway (Docker) + oracle"
+  },
+  {
+   "t": 3.64,
+   "kind": "out",
+   "text": "hourglass gateway on :8799 driver=docker provider=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 hourglass=0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+  },
+  {
+   "t": 4.85,
+   "kind": "out",
+   "text": "\u2713 redeemed 3h, lease 0"
+  },
+  {
+   "t": 4.88,
+   "kind": "out",
+   "text": "\u2713 gateway rejects keys that don't match the onchain commitment"
+  },
+  {
+   "t": 10.56,
+   "kind": "out",
+   "text": "[provision] lease 0 \u2192 hourglass-lease-0 (docker)"
+  },
+  {
+   "t": 10.56,
+   "kind": "out",
+   "text": "\u2713 provisioning idempotent across concurrent calls"
+  },
+  {
+   "t": 10.58,
+   "kind": "out",
+   "text": "\u2713 PROVISIONED onchain; holder decrypts access: ssh -i ~/.ssh/hourglass -p 32768 hourglass@localhost"
+  },
+  {
+   "t": 13.81,
+   "kind": "out",
+   "text": "\u2713 real SSH login with passkey-derived key: HOURGLASS_SSH_OK hourglass@9e7a55223dcc"
+  },
+  {
+   "t": 13.85,
+   "kind": "out",
+   "text": "\u2713 a different key is refused"
+  },
+  {
+   "t": 16.79,
+   "kind": "out",
+   "text": "\u2713 8 DON probes recorded, uptime 75%"
+  },
+  {
+   "t": 16.81,
+   "kind": "out",
+   "text": "\u2713 settled: SLA 99% missed, buyer paid $4.5 from provider bond"
+  },
+  {
+   "t": 16.81,
+   "kind": "out",
+   "text": "E2E PASS"
+  }
+ ]
+}

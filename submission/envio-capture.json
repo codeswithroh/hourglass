@@ -1,0 +1,219 @@
+{
+ "events": [
+  {
+   "t": 0.0,
+   "kind": "cmd",
+   "text": "curl indexer.dev.hyperindex.xyz/aa369f5/v1/graphql -d '{ Protocol { hoursSold primaryVolume leases activeLeases probes compensationPaid } }'"
+  },
+  {
+   "t": 1.11,
+   "kind": "out",
+   "text": "{"
+  },
+  {
+   "t": 1.11,
+   "kind": "out",
+   "text": "  \"Protocol\": ["
+  },
+  {
+   "t": 1.11,
+   "kind": "out",
+   "text": "    {"
+  },
+  {
+   "t": 1.11,
+   "kind": "out",
+   "text": "      \"hoursSold\": \"19\","
+  },
+  {
+   "t": 1.11,
+   "kind": "out",
+   "text": "      \"primaryVolume\": \"47310000\","
+  },
+  {
+   "t": 1.11,
+   "kind": "out",
+   "text": "      \"leases\": 19,"
+  },
+  {
+   "t": 1.11,
+   "kind": "out",
+   "text": "      \"activeLeases\": 1,"
+  },
+  {
+   "t": 1.11,
+   "kind": "out",
+   "text": "      \"probes\": 249,"
+  },
+  {
+   "t": 1.11,
+   "kind": "out",
+   "text": "      \"compensationPaid\": \"27114000\""
+  },
+  {
+   "t": 1.11,
+   "kind": "out",
+   "text": "    }"
+  },
+  {
+   "t": 1.11,
+   "kind": "out",
+   "text": "  ]"
+  },
+  {
+   "t": 1.11,
+   "kind": "out",
+   "text": "}"
+  },
+  {
+   "t": 1.11,
+   "kind": "cmd",
+   "text": "curl indexer.dev.hyperindex.xyz/aa369f5/v1/graphql -d '{ Provider { name reliabilityBps avgProvisionSeconds compensationPaid } }'"
+  },
+  {
+   "t": 1.72,
+   "kind": "out",
+   "text": "{"
+  },
+  {
+   "t": 1.72,
+   "kind": "out",
+   "text": "  \"Provider\": ["
+  },
+  {
+   "t": 1.72,
+   "kind": "out",
+   "text": "    {"
+  },
+  {
+   "t": 1.72,
+   "kind": "out",
+   "text": "      \"name\": \"Hourglass Demo Cloud\","
+  },
+  {
+   "t": 1.72,
+   "kind": "out",
+   "text": "      \"reliabilityBps\": 10000,"
+  },
+  {
+   "t": 1.72,
+   "kind": "out",
+   "text": "      \"avgProvisionSeconds\": 7,"
+  },
+  {
+   "t": 1.72,
+   "kind": "out",
+   "text": "      \"provisionSamples\": 19,"
+  },
+  {
+   "t": 1.72,
+   "kind": "out",
+   "text": "      \"compensationPaid\": \"27114000\""
+  },
+  {
+   "t": 1.72,
+   "kind": "out",
+   "text": "    }"
+  },
+  {
+   "t": 1.72,
+   "kind": "out",
+   "text": "  ]"
+  },
+  {
+   "t": 1.72,
+   "kind": "out",
+   "text": "}"
+  },
+  {
+   "t": 1.72,
+   "kind": "cmd",
+   "text": "curl indexer.dev.hyperindex.xyz/aa369f5/v1/graphql -d '{ Lease_by_pk(id:\"18\") { status probesUp probesTotal } Probe(where:{lease_id:{_eq:\"18\"}}) { up timestamp } }'"
+  },
+  {
+   "t": 2.37,
+   "kind": "out",
+   "text": "{"
+  },
+  {
+   "t": 2.37,
+   "kind": "out",
+   "text": "  \"Lease_by_pk\": {"
+  },
+  {
+   "t": 2.37,
+   "kind": "out",
+   "text": "    \"status\": \"Active\","
+  },
+  {
+   "t": 2.37,
+   "kind": "out",
+   "text": "    \"probesUp\": 1,"
+  },
+  {
+   "t": 2.37,
+   "kind": "out",
+   "text": "    \"probesTotal\": 1,"
+  },
+  {
+   "t": 2.37,
+   "kind": "out",
+   "text": "    \"series\": {"
+  },
+  {
+   "t": 2.37,
+   "kind": "out",
+   "text": "      \"gpuModel\": \"H100-80GB-SXM\","
+  },
+  {
+   "t": 2.37,
+   "kind": "out",
+   "text": "      \"region\": \"US-EAST\""
+  },
+  {
+   "t": 2.37,
+   "kind": "out",
+   "text": "    }"
+  },
+  {
+   "t": 2.37,
+   "kind": "out",
+   "text": "  },"
+  },
+  {
+   "t": 2.37,
+   "kind": "out",
+   "text": "  \"Probe\": ["
+  },
+  {
+   "t": 2.37,
+   "kind": "out",
+   "text": "    {"
+  },
+  {
+   "t": 2.37,
+   "kind": "out",
+   "text": "      \"up\": true,"
+  },
+  {
+   "t": 2.37,
+   "kind": "out",
+   "text": "      \"timestamp\": \"1791664867\""
+  },
+  {
+   "t": 2.37,
+   "kind": "out",
+   "text": "    }"
+  },
+  {
+   "t": 2.37,
+   "kind": "out",
+   "text": "  ]"
+  },
+  {
+   "t": 2.37,
+   "kind": "out",
+   "text": "}"
+  }
+ ]
+}

@@ -1,0 +1,37 @@
+[
+ {
+  "id": "m1",
+  "text": "Hourglass uses Mera as its entire account layer. There's no wallet to install, no seed phrase, and no custody backend.",
+  "duration": 8.832
+ },
+ {
+  "id": "m2",
+  "text": "One passkey ceremony creates the account. Mera derives the Monad address from the passkey, and the private key only ever lives inside a signing session in memory.",
+  "duration": 10.368
+ },
+ {
+  "id": "m3",
+  "text": "The session makes trading prompt-free. I buy an hour of H100, and it confirms on Monad with no pop-ups at all.",
+  "duration": 7.008
+ },
+ {
+  "id": "m4",
+  "text": "The ring in the sidebar shows the session window. Sensitive actions still re-prompt: redeeming asks the passkey again, to derive my machine key.",
+  "duration": 9.504
+ },
+ {
+  "id": "m5",
+  "text": "Locking ends the session and zeroes the key in memory.",
+  "duration": 3.912
+ },
+ {
+  "id": "m6",
+  "text": "Now the stateless test. I wipe every byte of site storage and reload. One passkey prompt later, the same account, the same holdings and the same machine are back, rebuilt from the passkey and the chain.",
+  "duration": 12.504
+ },
+ {
+  "id": "m7",
+  "text": "One passkey, one tap, a real machine. That's Mera on Hourglass.",
+  "duration": 4.536
+ }
+]

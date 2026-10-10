@@ -1,0 +1,30 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}body{margin:0;background:#09090b;color:#ededef;font:16px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;width:1280px;height:800px;overflow:hidden}
+.view{position:absolute;inset:0;padding:52px 60px;display:none}.view.on{display:block}
+h1{font-size:34px;letter-spacing:-.02em;margin:0 0 6px}.sub{color:#85858d;margin-bottom:28px;font-size:17px}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.01)),#131316;border:1px solid #26262b;border-radius:20px}
+.icon{width:46px;height:46px;border-radius:14px;background:radial-gradient(120% 120% at 30% 20%,#f4f4f5,#a1a1aa 28%,#3f3f46 60%,#18181b);display:grid;place-items:center;color:#000;font-weight:700;font-size:13px;flex-shrink:0}
+.step{opacity:.2;transition:opacity .5s,transform .5s}.step.on{opacity:1}
+.term{height:650px;display:flex;flex-direction:column}
+.bar{display:flex;gap:8px;padding:14px 16px;border-bottom:1px solid #26262b;align-items:center}.dot{width:12px;height:12px;border-radius:50%;background:#3f3f46}.bar .t{margin-left:12px;color:#85858d;font-size:13px}
+#out{flex:1;padding:16px 20px;font:14px/1.55 ui-monospace,"SF Mono",Menlo,monospace;white-space:pre-wrap;word-break:break-all;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
+.l-cmd{color:#fafafa;margin-top:10px}.l-cmd:before{content:"$ ";color:#4ade80}.hl{color:#4ade80}.dim{color:#71717a}
+.mono{font-family:ui-monospace,Menlo,monospace}
+#cap{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);max-width:980px;width:max-content;padding:12px 22px;border-radius:12px;background:rgba(8,9,11,.9);font:500 21px/1.35 ui-sans-serif,system-ui;text-align:center;border:1px solid rgba(232,176,75,.25);opacity:0;transition:opacity .2s;z-index:9}
+</style></head><body>
+<div id="v-slide" class="view on"></div>
+<div id="v-term" class="view"><div class="card term"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="t" id="tt"></span></div><div id="out"></div></div></div>
+<div id="cap"></div>
+<script>
+const esc=s=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+window.show=v=>document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
+window.slide=h=>{document.getElementById('v-slide').innerHTML=h;show('slide')};
+window.steps=n=>document.querySelectorAll('.step').forEach((e,i)=>e.classList.toggle('on',i<n));
+window.cap=t=>{const c=document.getElementById('cap');c.textContent=t;c.style.opacity=t?1:0};
+window.term=t=>{document.getElementById('tt').textContent=t;document.getElementById('out').innerHTML='';show('term')};
+window.play=(evs,ms)=>new Promise(async r=>{const out=document.getElementById('out');const n=evs.filter(e=>e.kind!=='cmd').length||1;const per=ms/n;
+ for(const e of evs){const d=document.createElement('div');d.className='l-'+e.kind;
+  if(e.kind==='cmd'){out.appendChild(d);for(const ch of e.text){d.textContent+=ch;await new Promise(z=>setTimeout(z,10))}}
+  else{d.innerHTML=esc(e.text).replace(/(✓[^\n]*|HOURGLASS_SSH_OK[^\n]*|E2E PASS|"Active"|"up": true)/g,'<span class="hl">$1</span>');out.appendChild(d);await new Promise(z=>setTimeout(z,per))}
+  while(out.children.length>36)out.removeChild(out.firstChild)}r()});
+</script></body></html>

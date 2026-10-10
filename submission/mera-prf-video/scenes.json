@@ -1,0 +1,37 @@
+[
+ {
+  "id": "p1",
+  "text": "Mera's PRF lets one passkey mint unlimited, isolated keys. Hourglass uses a second salt, separate from the wallet, as your machine identity.",
+  "duration": 9.336
+ },
+ {
+  "id": "p2",
+  "text": "From that compute namespace, we derive two keys: an SSH key that is authorized on the machines you rent, and an encryption key that providers seal your access details to.",
+  "duration": 11.112
+ },
+ {
+  "id": "p3",
+  "text": "I redeem an hour for a machine. The passkey derives the SSH key, and only its public half is committed onchain.",
+  "duration": 7.536
+ },
+ {
+  "id": "p4",
+  "text": "The provider encrypts the connection details to my sealing key and posts them onchain. Unlocking re-derives the key and decrypts them, right here in the browser.",
+  "duration": 9.528
+ },
+ {
+  "id": "p5",
+  "text": "Now I wipe all site storage and sign in again. The same passkey reproduces the exact same SSH key, and decrypts the same onchain access. Nothing was ever stored.",
+  "duration": 11.496
+ },
+ {
+  "id": "p6",
+  "text": "And it's a real key. In our end to end test, a freshly provisioned container accepts a login with the passkey-derived key, and refuses any other key.",
+  "duration": 9.816
+ },
+ {
+  "id": "p7",
+  "text": "One passkey: your account, your SSH identity, and the key your machines are sealed to.",
+  "duration": 6.12
+ }
+]
