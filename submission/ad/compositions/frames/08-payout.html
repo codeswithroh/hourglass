@@ -1,0 +1,69 @@
+<template>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<style>
+@font-face{font-family:Geist;font-style:normal;font-weight:100 900;font-display:swap;src:url("assets/fonts/captured-fef07dbb0973bf53-s.00az9qtie3ho1.woff2")format("woff2");unicode-range:U+460-52F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F}
+@font-face{font-family:Geist;font-style:normal;font-weight:100 900;font-display:swap;src:url("assets/fonts/captured-8a480f0b521d4e75-s.3j-a226dh71aj.woff2")format("woff2");unicode-range:U+301,U+400-45F,U+490-491,U+4B0-4B1,U+2116}
+@font-face{font-family:Geist;font-style:normal;font-weight:100 900;font-display:swap;src:url("assets/fonts/captured-53b9e256198e5412-s.2gwoz23eiro2t.woff2")format("woff2");unicode-range:U+102-103,U+110-111,U+128-129,U+168-169,U+1A0-1A1,U+1AF-1B0,U+300-301,U+303-304,U+308-309,U+323,U+329,U+1EA0-1EF9,U+20AB}
+@font-face{font-family:Geist;font-style:normal;font-weight:100 900;font-display:swap;src:url("assets/fonts/captured-7178b3e590c64307-s.0i3h3th1vs4m7.woff2")format("woff2");unicode-range:U+100-2BA,U+2BD-2C5,U+2C7-2CC,U+2CE-2D7,U+2DD-2FF,U+304,U+308,U+329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:Geist;font-style:normal;font-weight:100 900;font-display:swap;src:url("assets/fonts/captured-caa3a2e1cccd8315-s.p.0zr6hhvz-h9nw.woff2")format("woff2");unicode-range:U+??,U+131,U+152-153,U+2BB-2BC,U+2C6,U+2DA,U+2DC,U+304,U+308,U+329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Geist Mono;font-style:normal;font-weight:100 900;font-display:swap;src:url("assets/fonts/captured-5ce348bf30bf5439-s.27spqqad3wyeo.woff2")format("woff2");unicode-range:U+460-52F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F}
+@font-face{font-family:Geist Mono;font-style:normal;font-weight:100 900;font-display:swap;src:url("assets/fonts/captured-4fa387ec64143e14-s.3f4zuumv8svu0.woff2")format("woff2");unicode-range:U+301,U+400-45F,U+490-491,U+4B0-4B1,U+2116}
+@font-face{font-family:Geist Mono;font-style:normal;font-weight:100 900;font-display:swap;src:url("assets/fonts/captured-6306c77e7c8268e4-s.34r5yzckw0h2s.woff2")format("woff2");unicode-range:U+2000-2001,U+2004-2008,U+200A,U+23B8-23BD,U+2500-259F}
+@font-face{font-family:Geist Mono;font-style:normal;font-weight:100 900;font-display:swap;src:url("assets/fonts/captured-7d817b4c03b0c5f1-s.2jyz_zw3a8jit.woff2")format("woff2");unicode-range:U+102-103,U+110-111,U+128-129,U+168-169,U+1A0-1A1,U+1AF-1B0,U+300-301,U+303-304,U+308-309,U+323,U+329,U+1EA0-1EF9,U+20AB}
+@font-face{font-family:Geist Mono;font-style:normal;font-weight:100 900;font-display:swap;src:url("assets/fonts/captured-bbc41e54d2fcbd21-s.30bdpjkrtcces.woff2")format("woff2");unicode-range:U+100-2BA,U+2BD-2C5,U+2C7-2CC,U+2CE-2D7,U+2DD-2FF,U+304,U+308,U+329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:Geist Mono;font-style:normal;font-weight:100 900;font-display:swap;src:url("assets/fonts/captured-797e433ab948586e-s.p.1v5bejj26fx9h.woff2")format("woff2");unicode-range:U+??,U+131,U+152-153,U+2BB-2BC,U+2C6,U+2DA,U+2DC,U+304,U+308,U+329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+</style>
+<style>
+#root { position:absolute; inset:0; width:1920px; height:1080px; overflow:hidden; color:#EDEDEF; font-family:Geist, sans-serif; }
+.f08-payout-bg { position:absolute; inset:0; background:#09090B; }
+.f08-payout-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px); background-size:96px 96px; }
+.f08-payout-mono { font-family:"Geist Mono", monospace; text-transform:uppercase; letter-spacing:.14em; font-size:20px; color:#85858D; }
+.f08-payout-abs { position:absolute; }
+
+.bar8 { width:26px; height:200px; border-radius:6px; background:#4ADE80; transform-origin:bottom center; }
+.pct { font-weight:700; font-size:120px; letter-spacing:-.04em; }
+.stamp { left:930px; top:220px; width:820px; padding:40px 48px; background:#4ADE80; color:#09090B; border-radius:28px; box-shadow:0 40px 140px rgba(74,222,128,.25); }
+
+</style>
+<div id="root" data-composition-id="08-payout" data-width="1920" data-height="1080">
+  <div id="08-payout-bg" class="clip f08-payout-bg" data-start="0" data-duration="3.6" data-track-index="0"><div class="f08-payout-grid"></div></div>
+
+  <svg class="f08-payout-abs" style="left:150px;top:150px" width="620" height="620" viewBox="0 0 620 620">
+    <circle cx="310" cy="310" r="260" fill="none" stroke="#202024" stroke-width="34"/>
+    <circle id="p-ring" cx="310" cy="310" r="260" fill="none" stroke="#4ADE80" stroke-width="34" stroke-linecap="round" stroke-dasharray="1634" stroke-dashoffset="0" transform="rotate(-90 310 310)"/>
+    <line x1="310" y1="20" x2="310" y2="88" stroke="#fff" stroke-width="7" transform="rotate(356.4 310 310)"/>
+  </svg>
+  <div class="f08-payout-abs pct" id="p-pct" style="left:150px;width:620px;text-align:center;top:385px">100%</div>
+  <div class="f08-payout-abs f08-payout-mono" id="p-below" style="left:150px;width:620px;text-align:center;top:520px;font-size:26px;color:#F87171">below sla</div>
+  <div class="f08-payout-abs bar8" id="p-b0" style="left:1000px;top:300px;"></div><div class="f08-payout-abs bar8" id="p-b1" style="left:1042px;top:300px;"></div><div class="f08-payout-abs bar8" id="p-b2" style="left:1084px;top:300px;"></div><div class="f08-payout-abs bar8" id="p-b3" style="left:1126px;top:300px;"></div><div class="f08-payout-abs bar8" id="p-b4" style="left:1168px;top:300px;"></div><div class="f08-payout-abs bar8" id="p-b5" style="left:1210px;top:300px;"></div><div class="f08-payout-abs bar8" id="p-b6" style="left:1252px;top:300px;"></div><div class="f08-payout-abs bar8" id="p-b7" style="left:1294px;top:300px;"></div><div class="f08-payout-abs bar8" id="p-b8" style="left:1336px;top:300px;"></div><div class="f08-payout-abs bar8" id="p-b9" style="left:1378px;top:300px;"></div><div class="f08-payout-abs bar8" id="p-b10" style="left:1420px;top:300px;"></div><div class="f08-payout-abs bar8" id="p-b11" style="left:1462px;top:300px;"></div><div class="f08-payout-abs bar8" id="p-b12" style="left:1504px;top:300px;background:#F87171;height:80px;top:420px"></div><div class="f08-payout-abs bar8" id="p-b13" style="left:1546px;top:300px;background:#F87171;height:80px;top:420px"></div><div class="f08-payout-abs bar8" id="p-b14" style="left:1588px;top:300px;background:#F87171;height:80px;top:420px"></div><div class="f08-payout-abs bar8" id="p-b15" style="left:1630px;top:300px;background:#F87171;height:80px;top:420px"></div>
+  <div class="f08-payout-abs stamp" id="p-stamp">
+    <div style="font-family:'Geist Mono',monospace;font-size:26px;letter-spacing:.14em;text-transform:uppercase;opacity:.7">provider bond → you</div>
+    <div style="font-weight:700;font-size:150px;letter-spacing:-.05em;line-height:1;margin-top:10px" id="p-amt">+$0.00</div>
+    <div style="font-weight:700;font-size:64px;letter-spacing:-.03em;margin-top:6px" id="p-auto"></div>
+  </div>
+
+</div>
+<script>
+(function(){
+const tl = gsap.timeline({ paused: true });
+const q = (s) => document.querySelector('[data-composition-id="08-payout"] ' + s);
+
+for (let i=0;i<16;i++) tl.set(q('#p-b'+i), {opacity: i<12?1:0}, 0);
+const u = {v:100};
+[12,13,14,15].forEach((i,k)=>tl.fromTo(q('#p-b'+i), {opacity:0, scaleY:0}, {opacity:1, scaleY:1, duration:0.1}, 0.08+k*0.12));
+tl.fromTo(u, {v:100}, {v:75, duration:0.6, ease:"power3.out", onUpdate:()=>{ q('#p-pct').textContent = Math.round(u.v)+'%'; }}, 0.1);
+tl.fromTo(q('#p-ring'), {strokeDashoffset:0}, {strokeDashoffset:408, duration:0.6, ease:"power3.out"}, 0.1);
+tl.set(q('#p-ring'), {stroke:"#F87171"}, 0.12);
+tl.set(q('#p-pct'), {color:"#F87171"}, 0.12);
+[[0.12,-20],[0.17,16],[0.22,-10],[0.27,0],[0.6,14],[0.65,-8],[0.7,0]].forEach(([t,x])=>tl.set(q('#root'), {x}, t));
+tl.fromTo(q('#p-below'), {opacity:0}, {opacity:1, duration:0.1}, 0.3);
+tl.fromTo(q('#p-stamp'), {scale:1.8, opacity:0, rotation:-6}, {scale:1, opacity:1, rotation:-2, duration:0.22, ease:"power4.in"}, 1.2);
+const a = {v:0};
+tl.fromTo(a, {v:0}, {v:1.5, duration:0.7, ease:"power2.out", onUpdate:()=>{ q('#p-amt').textContent = '+$'+a.v.toFixed(2); }}, 1.3);
+const W = "automatically.", w = {n:0};
+tl.fromTo(w, {n:0}, {n:W.length, duration:0.45, ease:"none", onUpdate:()=>{ q('#p-auto').textContent = W.slice(0, Math.round(w.n)); }}, 2.4);
+
+window.__timelines["08-payout"] = tl;
+})();
+</script>
+</template>

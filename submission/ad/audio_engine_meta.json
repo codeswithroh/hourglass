@@ -1,0 +1,167 @@
+{
+  "tts_provider": null,
+  "voice_id": null,
+  "bgm": {
+    "path": "assets/bgm/track.mp3",
+    "volume": 0.9,
+    "query": "high-energy driving electronic trailer beat, punchy drums, hype tech promo",
+    "mode": "retrieve",
+    "duration_s": 27
+  },
+  "bgm_pending": false,
+  "bgm_provider": "heygen",
+  "bgm_pid": null,
+  "bgm_log": null,
+  "bgm_mode": "retrieve",
+  "bgm_target_duration_s": null,
+  "bgm_seed_duration_s": null,
+  "bgm_loop_count": null,
+  "voices": [],
+  "sfx": [
+    {
+      "id": "01",
+      "name": "glitch hit",
+      "file": "assets/sfx/glitch-hit.mp3",
+      "source": "heygen",
+      "offset_s": 0,
+      "duration_s": 1.176,
+      "volume": 0.35
+    },
+    {
+      "id": "01",
+      "name": "heartbeat flatline beep",
+      "file": "assets/sfx/heartbeat-flatline-beep.mp3",
+      "source": "heygen",
+      "offset_s": 0,
+      "duration_s": 0.144,
+      "volume": 0.35
+    },
+    {
+      "id": "02",
+      "name": "three quick impact hits (one per phrase)",
+      "file": "assets/sfx/three-quick-impact-hits-one-per-phrase.mp3",
+      "source": "heygen",
+      "offset_s": 0,
+      "duration_s": 1.104,
+      "volume": 0.35
+    },
+    {
+      "id": "02",
+      "name": "paper stamp thud",
+      "file": "assets/sfx/paper-stamp-thud.mp3",
+      "source": "heygen",
+      "offset_s": 0,
+      "duration_s": 1.2,
+      "volume": 0.35
+    },
+    {
+      "id": "03",
+      "name": "riser into a hard stop",
+      "file": "assets/sfx/riser-into-a-hard-stop.mp3",
+      "source": "heygen",
+      "offset_s": 0,
+      "duration_s": 4.364,
+      "volume": 0.35
+    },
+    {
+      "id": "04",
+      "name": "whoosh into a big bass impact",
+      "file": "assets/sfx/whoosh-into-a-big-bass-impact.mp3",
+      "source": "heygen",
+      "offset_s": 0,
+      "duration_s": 4.393,
+      "volume": 0.35
+    },
+    {
+      "id": "05",
+      "name": "whoosh",
+      "file": "assets/sfx/whoosh.mp3",
+      "source": "heygen",
+      "offset_s": 0,
+      "duration_s": 1.58,
+      "volume": 0.35
+    },
+    {
+      "id": "05",
+      "name": "UI click",
+      "file": "assets/sfx/ui-click.mp3",
+      "source": "heygen",
+      "offset_s": 0,
+      "duration_s": 0.576,
+      "volume": 0.35
+    },
+    {
+      "id": "06",
+      "name": "click",
+      "file": "assets/sfx/click.mp3",
+      "source": "heygen",
+      "offset_s": 0,
+      "duration_s": 0.24,
+      "volume": 0.35
+    },
+    {
+      "id": "06",
+      "name": "keyboard typing burst",
+      "file": "assets/sfx/keyboard-typing-burst.mp3",
+      "source": "heygen",
+      "offset_s": 0,
+      "duration_s": 44.382,
+      "volume": 0.35
+    },
+    {
+      "id": "07",
+      "name": "rapid ticks",
+      "file": "assets/sfx/rapid-ticks.mp3",
+      "source": "heygen",
+      "offset_s": 0,
+      "duration_s": 0.648,
+      "volume": 0.35
+    },
+    {
+      "id": "08",
+      "name": "glitch + alarm blip",
+      "file": "assets/sfx/glitch-alarm-blip.mp3",
+      "source": "heygen",
+      "offset_s": 0,
+      "duration_s": 1.032,
+      "volume": 0.35
+    },
+    {
+      "id": "08",
+      "name": "then cash-register / impact",
+      "file": "assets/sfx/then-cash-register-impact.mp3",
+      "source": "heygen",
+      "offset_s": 0,
+      "duration_s": 2.442,
+      "volume": 0.35
+    },
+    {
+      "id": "09",
+      "name": "three snappy whooshes",
+      "file": "assets/sfx/three-snappy-whooshes.mp3",
+      "source": "heygen",
+      "offset_s": 0,
+      "duration_s": 1.056,
+      "volume": 0.35
+    },
+    {
+      "id": "10",
+      "name": "final big impact",
+      "file": "assets/sfx/final-big-impact.mp3",
+      "source": "heygen",
+      "offset_s": 0,
+      "duration_s": 5.387,
+      "volume": 0.35
+    },
+    {
+      "id": "10",
+      "name": "reverb tail",
+      "file": "assets/sfx/reverb-tail.mp3",
+      "source": "heygen",
+      "offset_s": 0,
+      "duration_s": 1.649,
+      "volume": 0.35
+    }
+  ],
+  "total_duration_s": 0
+}

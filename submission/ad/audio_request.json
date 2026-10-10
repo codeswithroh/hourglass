@@ -1,0 +1,73 @@
+{
+  "lines": [
+    {
+      "id": "01",
+      "sfx": [
+        "glitch hit",
+        "heartbeat flatline beep"
+      ]
+    },
+    {
+      "id": "02",
+      "sfx": [
+        "three quick impact hits (one per phrase)",
+        "paper stamp thud"
+      ]
+    },
+    {
+      "id": "03",
+      "sfx": [
+        "riser into a hard stop"
+      ]
+    },
+    {
+      "id": "04",
+      "sfx": [
+        "whoosh into a big bass impact"
+      ]
+    },
+    {
+      "id": "05",
+      "sfx": [
+        "whoosh",
+        "UI click"
+      ]
+    },
+    {
+      "id": "06",
+      "sfx": [
+        "click",
+        "keyboard typing burst"
+      ]
+    },
+    {
+      "id": "07",
+      "sfx": [
+        "rapid ticks"
+      ]
+    },
+    {
+      "id": "08",
+      "sfx": [
+        "glitch + alarm blip",
+        "then cash-register / impact"
+      ]
+    },
+    {
+      "id": "09",
+      "sfx": [
+        "three snappy whooshes"
+      ]
+    },
+    {
+      "id": "10",
+      "sfx": [
+        "final big impact",
+        "reverb tail"
+      ]
+    }
+  ],
+  "bgm": {
+    "mode": "none"
+  }
+}
